@@ -139,15 +139,7 @@ const Login = () => {
       console.log('[LOGIN DEBUG] Calling toast.error');
       toast.error(errorMessage, { 
         toastId: 'login-error',
-        containerId: 'main-toast-container',
-        autoClose: 30000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: false,
-        closeButton: true,
-        transition: undefined,
-        position: 'top-right'
+        autoClose: 8000
       });
       
       console.log('[LOGIN DEBUG] Toast.error called, error handling complete');
@@ -192,16 +184,13 @@ const Login = () => {
               }
               return false;
             }}
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && !loading) {
                 e.preventDefault();
                 e.stopPropagation();
                 handleSubmit(e);
-                return false;
               }
             }}
-            action="javascript:void(0);"
-            method="post"
             noValidate
           >
             {/* API Error Alert - Persistent until manually closed */}

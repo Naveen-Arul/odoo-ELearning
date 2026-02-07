@@ -126,11 +126,46 @@ class Course {
         }
 
         // Get total count
-        const countQuery = query.replace(
-            /SELECT[\s\S]*?FROM/,
-            'SELECT COUNT(*) as total FROM'
-        );
-        const [countResult] = await pool.execute(countQuery, params);
+        let countQuery = `
+            SELECT COUNT(*) as total
+            FROM courses c
+            LEFT JOIN categories cat ON c.category_id = cat.id
+            LEFT JOIN users u ON c.instructor_id = u.id
+            WHERE 1=1
+        `;
+        const countParams = [];
+
+        // Rebuild filter conditions for count query
+        if (instructor_id) {
+            countQuery += ` AND c.instructor_id = ?`;
+            countParams.push(instructor_id);
+        }
+        if (category_id) {
+            countQuery += ` AND c.category_id = ?`;
+            countParams.push(category_id);
+        }
+        if (visibility) {
+            countQuery += ` AND c.visibility = ?`;
+            countParams.push(visibility);
+        }
+        if (access_rule) {
+            countQuery += ` AND c.access_rule = ?`;
+            countParams.push(access_rule);
+        }
+        if (is_published !== undefined) {
+            countQuery += ` AND c.is_published = ?`;
+            countParams.push(is_published);
+        }
+        if (level) {
+            countQuery += ` AND c.level = ?`;
+            countParams.push(level);
+        }
+        if (search) {
+            countQuery += ` AND (c.title LIKE ? OR c.description LIKE ?)`;
+            countParams.push(`%${search}%`, `%${search}%`);
+        }
+
+        const [countResult] = await pool.execute(countQuery, countParams);
         const total = countResult[0].total;
 
         // Apply sorting and pagination

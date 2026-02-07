@@ -8,6 +8,9 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import ManageCourses from './pages/ManageCourses';
+import CourseForm from './pages/CourseForm';
+import BrowseCourses from './pages/BrowseCourses';
 
 function App() {
   return (
@@ -28,11 +31,39 @@ function App() {
                 </PrivateRoute>
               }
             />
+            
+            {/* Course Management - Admin/Instructor */}
+            <Route
+              path="/manage-courses"
+              element={
+                <PrivateRoute>
+                  <ManageCourses />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/manage-courses/new"
+              element={
+                <PrivateRoute>
+                  <CourseForm />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/manage-courses/:id/edit"
+              element={
+                <PrivateRoute>
+                  <CourseForm />
+                </PrivateRoute>
+              }
+            />
+            
+            {/* Browse Courses - Learners */}
             <Route
               path="/courses"
               element={
                 <PrivateRoute>
-                  <Dashboard />
+                  <BrowseCourses />
                 </PrivateRoute>
               }
             />
@@ -47,24 +78,16 @@ function App() {
           {/* Toast Notifications */}
           <ToastContainer
             position="top-right"
-            autoClose={30000}
+            autoClose={5000}
             hideProgressBar={false}
             newestOnTop={true}
-            closeOnClick={false}
+            closeOnClick={true}
             rtl={false}
-            pauseOnFocusLoss={true}
-            draggable={false}
+            pauseOnFocusLoss={false}
+            draggable={true}
             pauseOnHover={true}
-            closeButton={true}
             theme="light"
             limit={3}
-            transition={undefined}
-            enableMultiContainer={false}
-            containerId="main-toast-container"
-            style={{ zIndex: 99999, position: 'fixed' }}
-            toastClassName="custom-toast"
-            bodyClassName="custom-toast-body"
-            progressClassName="custom-toast-progress"
           />
         </div>
       </Router>

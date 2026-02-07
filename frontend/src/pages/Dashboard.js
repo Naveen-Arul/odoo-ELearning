@@ -1,143 +1,215 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { FiLogOut, FiAward, FiBook, FiUsers } from 'react-icons/fi';
+import { courseService } from '../services/courseService';
+import { FiAward, FiBook, FiUsers, FiTrendingUp, FiPlus, FiArrowRight } from 'react-icons/fi';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+    const { user } = useAuth();
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+    useEffect(() => {
+        if (user?.role !== 'learner') {
+            fetchStats();
+        } else {
+            setLoading(false);
+        }
+    }, [user]);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl flex items-center justify-center shadow-lg mr-3">
-                <span className="text-xl font-bold text-white">L</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">LearnSphere</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="font-semibold text-gray-900">{user?.name}</div>
-                <div className="text-sm text-gray-500 capitalize">{user?.role}</div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <FiLogOut className="mr-2" />
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    const fetchStats = async () => {
+        try {
+            const response = await courseService.getStats();
+            if (response.success) {
+                setStats(response.data);
+            }
+        } catch (error) {
+            console.error('Failed to load stats:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name}! 👋
-          </h2>
-          <p className="text-gray-600">
-            {user?.role === 'learner'
-              ? 'Continue your learning journey'
-              : 'Manage your courses and students'}
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Points - Only for Learners */}
-          {user?.role === 'learner' && (
-            <div className="bg-white rounded-xl shadow-custom p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">Total Points</div>
-                  <div className="text-3xl font-bold text-gray-900">{user?.totalPoints || 0}</div>
+    return (
+        <Layout>
+            <div className="space-y-6">
+                {/* Welcome Section */}
+                <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-6 text-white">
+                    <h1 className="text-2xl font-bold mb-2">
+                        Welcome back, {user?.name}! 👋
+                    </h1>
+                    <p className="text-primary-100">
+                        {user?.role === 'learner'
+                            ? 'Continue your learning journey and earn more badges!'
+                            : 'Manage your courses and track student progress'}
+                    </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg flex items-center justify-center">
-                  <FiAward className="text-2xl text-white" />
-                </div>
-              </div>
-            </div>
-          )}
 
-          <div className="bg-white rounded-xl shadow-custom p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">
-                  {user?.role === 'learner' ? 'Enrolled Courses' : 'Total Courses'}
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {user?.role === 'learner' ? (
+                        <>
+                            {/* Learner Stats */}
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Total Points</div>
+                                        <div className="text-2xl font-bold text-gray-900">{user?.totalPoints || 0}</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                                        <FiAward className="text-yellow-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Enrolled Courses</div>
+                                        <div className="text-2xl font-bold text-gray-900">0</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                                        <FiBook className="text-primary-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Completed</div>
+                                        <div className="text-2xl font-bold text-gray-900">0</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                        <FiTrendingUp className="text-green-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Badges Earned</div>
+                                        <div className="text-2xl font-bold text-gray-900">0</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                        <FiAward className="text-purple-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Admin/Instructor Stats */}
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Total Courses</div>
+                                        <div className="text-2xl font-bold text-gray-900">{stats?.total_courses || 0}</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                                        <FiBook className="text-primary-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Published</div>
+                                        <div className="text-2xl font-bold text-green-600">{stats?.published_courses || 0}</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                        <FiTrendingUp className="text-green-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Total Students</div>
+                                        <div className="text-2xl font-bold text-gray-900">{stats?.total_enrollments || 0}</div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                        <FiUsers className="text-purple-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-sm text-gray-500">Avg. Rating</div>
+                                        <div className="text-2xl font-bold text-yellow-600">
+                                            {parseFloat(stats?.avg_rating || 0).toFixed(1)} ⭐
+                                        </div>
+                                    </div>
+                                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                                        <FiAward className="text-yellow-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
-                <div className="text-3xl font-bold text-gray-900">0</div>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-                <FiBook className="text-2xl text-white" />
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-custom p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">
-                  {user?.role === 'learner' ? 'Completed' : 'Students'}
+                {/* Quick Actions */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {user?.role === 'learner' ? (
+                        <>
+                            {/* Learner Quick Actions */}
+                            <div className="bg-white rounded-xl shadow-sm p-6">
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Continue Learning</h2>
+                                <div className="text-center py-8 text-gray-500">
+                                    <FiBook className="mx-auto mb-3" size={40} />
+                                    <p>No courses in progress</p>
+                                    <Link 
+                                        to="/courses" 
+                                        className="inline-flex items-center mt-4 text-primary-600 font-medium hover:text-primary-700"
+                                    >
+                                        Browse Courses <FiArrowRight className="ml-1" />
+                                    </Link>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-6">
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Badges</h2>
+                                <div className="text-center py-8 text-gray-500">
+                                    <FiAward className="mx-auto mb-3" size={40} />
+                                    <p>Complete courses to earn badges!</p>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Admin/Instructor Quick Actions */}
+                            <div className="bg-white rounded-xl shadow-sm p-6">
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Link
+                                        to="/manage-courses/new"
+                                        className="flex flex-col items-center p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors"
+                                    >
+                                        <FiPlus className="text-primary-600 mb-2" size={24} />
+                                        <span className="text-sm font-medium text-gray-700">New Course</span>
+                                    </Link>
+                                    <Link
+                                        to="/manage-courses"
+                                        className="flex flex-col items-center p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors"
+                                    >
+                                        <FiBook className="text-primary-600 mb-2" size={24} />
+                                        <span className="text-sm font-medium text-gray-700">View Courses</span>
+                                    </Link>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm p-6">
+                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+                                <div className="text-center py-8 text-gray-500">
+                                    <FiTrendingUp className="mx-auto mb-3" size={40} />
+                                    <p>No recent activity</p>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
-                <div className="text-3xl font-bold text-gray-900">0</div>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                <FiUsers className="text-2xl text-white" />
-              </div>
             </div>
-          </div>
-
-          {/* Additional stat for Admin/Instructor instead of points */}
-          {user?.role !== 'learner' && (
-            <div className="bg-white rounded-xl shadow-custom p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">
-                    {user?.role === 'admin' ? 'Total Users' : 'Active Learners'}
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900">0</div>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <FiAward className="text-2xl text-white" />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Coming Soon Section */}
-        <div className="bg-white rounded-xl shadow-custom p-12 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <FiBook className="text-4xl text-white" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Dashboard Coming Soon
-            </h3>
-            <p className="text-gray-600 mb-6">
-              We're building an amazing dashboard experience for you. Stay tuned for course management, analytics, and more!
-            </p>
-            <div className="inline-flex items-center px-6 py-3 bg-primary-50 text-primary-700 font-semibold rounded-lg">
-              ✨ Authentication Phase Complete!
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+        </Layout>
+    );
 };
 
 export default Dashboard;
