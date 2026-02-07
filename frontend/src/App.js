@@ -55,6 +55,7 @@ function App() {
             pauseOnFocusLoss={true}
             draggable={false}
             pauseOnHover={true}
+            closeButton={true}
             theme="light"
             limit={3}
             transition={undefined}

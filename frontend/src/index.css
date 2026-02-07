@@ -193,6 +193,31 @@ body {
   transition: none !important;
 }
 
+/* Close button styling */
+.Toastify__close-button {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: white !important;
+  font-size: 20px !important;
+  padding: 4px !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  border: none !important;
+  align-self: flex-start !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 0.8 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.Toastify__close-button > svg {
+  height: 18px !important;
+  width: 18px !important;
+  fill: white !important;
+}
+
 /* Disable ALL Toastify animations and transitions */
 .Toastify__toast-container--top-right {
   animation: none !important;

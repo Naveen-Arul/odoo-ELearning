@@ -105,12 +105,17 @@ const Signup = () => {
       const response = await register(formData);
       
       if (response.success) {
+        // Dismiss any existing error toasts before showing success
+        toast.dismiss('signup-error');
+        
         toast.success('Account created successfully! Welcome to LearnSphere.', { 
+          toastId: 'signup-success',
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: false,
           pauseOnHover: true,
-          draggable: false
+          draggable: false,
+          closeButton: true
         });
         
         // Redirect based on role
@@ -162,6 +167,9 @@ const Signup = () => {
       }
       
       // Set persistent error message
+      // Dismiss any existing error toasts first
+      toast.dismiss('signup-error');
+      
       setApiError(errorMessage);
       
       toast.error(errorMessage, { 

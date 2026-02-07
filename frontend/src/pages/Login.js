@@ -71,12 +71,17 @@ const Login = () => {
       const response = await login(formData);
       
       if (response.success) {
+        // Dismiss any existing error toasts before showing success
+        toast.dismiss('login-error');
+        
         toast.success('Login successful! Welcome back.', { 
+          toastId: 'login-success',
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: false,
           pauseOnHover: true,
-          draggable: false
+          draggable: false,
+          closeButton: true
         });
         
         // Redirect based on role
@@ -124,6 +129,9 @@ const Login = () => {
       // Set persistent error message
       console.log('[LOGIN DEBUG] Setting error message:', errorMessage);
       console.log('[LOGIN DEBUG] About to call setApiError and toast.error');
+      
+      // Dismiss any existing error toasts first
+      toast.dismiss('login-error');
       
       setApiError(errorMessage);
       
