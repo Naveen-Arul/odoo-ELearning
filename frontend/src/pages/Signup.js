@@ -80,8 +80,16 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // Prevent all default behaviors
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Prevent if already loading
+    if (loading) {
+      return false;
+    }
     
     // Validate form first
     if (!validateForm()) {

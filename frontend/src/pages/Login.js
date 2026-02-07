@@ -88,7 +88,10 @@ const Login = () => {
         }
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.log('[LOGIN DEBUG] Error caught in handleSubmit');
+      console.log('[LOGIN DEBUG] Error details:', error);
+      console.log('[LOGIN DEBUG] Error response:', error.response);
+      console.log('[LOGIN DEBUG] Error status:', error.response?.status);
       
       let errorMessage = 'Unable to login. Please try again.';
       
@@ -119,8 +122,13 @@ const Login = () => {
       }
       
       // Set persistent error message
+      console.log('[LOGIN DEBUG] Setting error message:', errorMessage);
+      console.log('[LOGIN DEBUG] About to call setApiError and toast.error');
+      
       setApiError(errorMessage);
       
+      // Show toast with maximum persistence
+      console.log('[LOGIN DEBUG] Calling toast.error');
       toast.error(errorMessage, { 
         toastId: 'login-error',
         containerId: 'main-toast-container',
@@ -133,10 +141,15 @@ const Login = () => {
         transition: undefined,
         position: 'top-right'
       });
+      
+      console.log('[LOGIN DEBUG] Toast.error called, error handling complete');
     } finally {
+      console.log('[LOGIN DEBUG] In finally block, setting loading to false');
       setLoading(false);
+      console.log('[LOGIN DEBUG] Loading set to false');
     }
     
+    console.log('[LOGIN DEBUG] handleSubmit complete, returning false');
     return false; // Extra safety to prevent form submission
   };
 
