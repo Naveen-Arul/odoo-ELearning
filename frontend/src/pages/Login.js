@@ -46,8 +46,16 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // Prevent all default behaviors
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Prevent if already loading
+    if (loading) {
+      return false;
+    }
     
     // Validate form first
     if (!validateForm()) {
@@ -158,10 +166,22 @@ const Login = () => {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleSubmit(e);
+              if (!loading) {
+                handleSubmit(e);
+              }
               return false;
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !loading) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSubmit(e);
+                return false;
+              }
+            }}
             action="javascript:void(0);"
+            method="post"
+            noValidate
           >
             {/* API Error Alert - Persistent until manually closed */}
             {apiError && (
@@ -291,11 +311,15 @@ const Login = () => {
 
             {/* Submit Button */}
             <button
-              type="submit"
+              type="button"
               disabled={loading}
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                // Form submit handler will take care of the rest
+                if (!loading) {
+                  handleSubmit(e);
+                }
+                return false;
               }}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >

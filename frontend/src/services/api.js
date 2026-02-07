@@ -30,9 +30,19 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if we're NOT already on login or signup pages
+      const currentPath = window.location.pathname;
+      const isAuthPage = currentPath === '/login' || currentPath === '/signup' || currentPath === '/';
+      
+      if (!isAuthPage) {
+        // Only clear storage and redirect if on a protected route
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Use pushState instead of hard reload to preserve toasts
+        window.history.pushState({}, '', '/login');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+      // If we're on login/signup, just pass the error through without redirecting
     }
     return Promise.reject(error);
   }

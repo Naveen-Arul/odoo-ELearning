@@ -246,10 +246,22 @@ const Signup = () => {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleSubmit(e);
+              if (!loading) {
+                handleSubmit(e);
+              }
               return false;
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !loading) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSubmit(e);
+                return false;
+              }
+            }}
             action="javascript:void(0);"
+            method="post"
+            noValidate
           >
             {/* API Error Alert - Persistent until manually closed */}
             {apiError && (
