@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Smooth transitions - but NOT for toasts */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Override global transitions for toast components */
+.Toastify__toast-container,
+.Toastify__toast,
+.Toastify__toast-body,
+.custom-toast,
+.custom-toast-body {
+  transition: none !important;
+}
+
+/* Custom button animations */
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transform hover:scale-105 transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-custom p-6;
+  }
+}
+
+/* Gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-bg-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-bg-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+  animation-fill-mode: forwards;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Error Alert Banner - Ensure it stays visible */
+.bg-red-50 {
+  will-change: auto;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Custom Toast Styles */
+.custom-toast {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35) !important;
+  font-family: 'Inter', sans-serif !important;
+  min-height: 80px !important;
+  padding: 12px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+  backface-visibility: visible !important;
+}
+
+.custom-toast-body {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  padding: 14px 10px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  transition: none !important;
+}
+
+.custom-toast-progress {
+  height: 6px !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+  transition: none !important;
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  animation: shake 0.5s forwards !important;
+  opacity: 1 !important;
+  z-index: 99999 !important;
+  visibility: visible !important;
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure toast container is always visible */
+.Toastify__toast-container {
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  transition: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: fixed !important;
+  top: 1em !important;
+  right: 1em !important;
+}
+
+/* Specific targeting for top-right position */
+.Toastify__toast-container--top-right {
+  position: fixed !important;
+  top: 1em !important;
+  right: 1em !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Make sure progress bar is visible */
+.Toastify__progress-bar {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: none !important;
+}
+
+/* Disable ALL Toastify animations and transitions */
+.Toastify__toast-container--top-right {
+  animation: none !important;
+}
+
+.Toastify__toast {
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Keep the shake animation only for errors */
+.Toastify__toast--error {
+  animation: shake 0.5s forwards !important;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
