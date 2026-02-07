@@ -4,8 +4,10 @@ class User {
   // Create new user
   static async create(userData) {
     const { name, email, password, role = 'learner' } = userData;
-    const query = 'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)';
-    const [result] = await promisePool.execute(query, [name, email, password, role]);
+    // Only learners get points tracking, admin/instructor get NULL
+    const totalPoints = role === 'learner' ? 0 : null;
+    const query = 'INSERT INTO users (name, email, password, role, total_points) VALUES (?, ?, ?, ?, ?)';
+    const [result] = await promisePool.execute(query, [name, email, password, role, totalPoints]);
     return result.insertId;
   }
 
@@ -23,10 +25,12 @@ class User {
     return rows[0];
   }
 
-  // Update user points
+  // Update user points (only for learners)
   static async updatePoints(userId, points) {
-    const query = 'UPDATE users SET total_points = total_points + ? WHERE id = ?';
-    await promisePool.execute(query, [points, userId]);
+    // Only update points for learners
+    const query = 'UPDATE users SET total_points = total_points + ? WHERE id = ? AND role = "learner"';
+    const [result] = await promisePool.execute(query, [points, userId]);
+    return result.affectedRows > 0;
   }
 
   // Check if email exists

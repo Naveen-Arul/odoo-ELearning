@@ -81,7 +81,8 @@ exports.register = async (req, res) => {
           email: user.email,
           role: user.role,
           avatar: user.avatar,
-          totalPoints: user.total_points
+          // Only include points for learners
+          ...(user.role === 'learner' && { totalPoints: user.total_points || 0 })
         },
         token
       }
@@ -159,7 +160,8 @@ exports.login = async (req, res) => {
           email: user.email,
           role: user.role,
           avatar: user.avatar,
-          totalPoints: user.total_points
+          // Only include points for learners
+          ...(user.role === 'learner' && { totalPoints: user.total_points || 0 })
         },
         token
       }
@@ -213,7 +215,8 @@ exports.getCurrentUser = async (req, res) => {
           email: user.email,
           role: user.role,
           avatar: user.avatar,
-          totalPoints: user.total_points
+          // Only include points for learners
+          ...(user.role === 'learner' && { totalPoints: user.total_points || 0 })
         }
       }
     });
