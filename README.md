@@ -1,8 +1,16 @@
-# SkillForge AI 🚀
+# LearnSphere AI 🚀
+
+## 🎥 Demo Video - Odoo Team 67
+
+[![LearnSphere AI Demo](https://drive.google.com/thumbnail?id=1jgudU8V7NwrdNKwXIp1uxgy9MCAGN1R_&sz=w1000)](https://drive.google.com/file/d/1jgudU8V7NwrdNKwXIp1uxgy9MCAGN1R_/view?usp=sharing)
+
+> **📹 Watch our complete platform walkthrough** - [Click here to view on Google Drive](https://drive.google.com/file/d/1jgudU8V7NwrdNKwXIp1uxgy9MCAGN1R_/view?usp=sharing)
+
+---
 
 An AI-powered Edu-Tech and Career Growth platform with adaptive learning, role-based roadmaps, AI tutoring, video-based testing, and personalized study scheduling.
 
-![SkillForge AI](https://img.shields.io/badge/SkillForge-AI-red?style=for-the-badge)
+![LearnSphere AI](https://img.shields.io/badge/LearnSphere-AI-red?style=for-the-badge)
 ![MERN Stack](https://img.shields.io/badge/MERN-Stack-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
@@ -67,7 +75,7 @@ An AI-powered Edu-Tech and Career Growth platform with adaptive learning, role-b
 ## 📁 Project Structure
 
 ```
-skillforge-ai/
+learnsphere-ai/
 ├── backend/
 │   ├── config/
 │   │   ├── database.js       # MongoDB connection
@@ -181,8 +189,8 @@ skillforge-ai/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/skillforge-ai.git
-cd skillforge-ai
+git clone https://github.com/yourusername/learnsphere-ai.git
+cd learnsphere-ai
 ```
 
 2. **Setup Backend**
@@ -202,7 +210,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/skillforge
+MONGODB_URI=mongodb://localhost:27017/learnsphere
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
@@ -271,7 +279,7 @@ npm start
 7. **Access the Application**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
-- Admin Login: admin@skillforge.com / admin123
+- Admin Login: admin@learnsphere.com / admin123
 
 ## 📡 API Endpoints
 
@@ -460,8 +468,8 @@ docker-compose up -d
    ```
 
 2. Check your MONGODB_URI in `.env`:
-   - Local: `mongodb://localhost:27017/skillforge-ai`
-   - Atlas: `mongodb+srv://username:password@cluster.mongodb.net/skillforge-ai`
+   - Local: `mongodb://localhost:27017/learnsphere-ai`
+   - Atlas: `mongodb+srv://username:password@cluster.mongodb.net/learnsphere-ai`
 
 ### CORS Error When Calling Backend APIs
 
@@ -523,5 +531,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Built with ❤️ by the SkillForge Team
+  Built with ❤️ by the LearnSphere Team
 </p>
