@@ -1,0 +1,11 @@
+name: Send Daily Reminders (disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Daily reminders disabled
+        run: echo "Daily reminders have been removed."

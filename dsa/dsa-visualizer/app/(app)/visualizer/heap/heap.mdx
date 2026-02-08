@@ -1,0 +1,459 @@
+# HEAP – CORE CONCEPT
+
+## 🔹 What is a Heap?
+
+A Heap is a complete binary tree that satisfies the heap property.
+
+Complete Binary Tree means:
+
+- All levels are completely filled
+- Except possibly the last level (filled left to right)
+
+## 🔹 Types of Heap
+
+1) **Min Heap**
+
+- Parent node value ≤ children values
+- Root contains the minimum element
+
+2) **Max Heap**
+
+- Parent node value ≥ children values
+- Root contains the maximum element
+
+## 🔹 Heap Structure (Array Representation)
+
+For index $i$:
+
+- Parent → $(i-1)//2$
+- Left → $2*i + 1$
+- Right → $2*i + 2$
+
+Heaps are usually stored in arrays, not linked nodes.
+
+## 🔹 Why Heaps?
+
+- Efficient priority queue
+- Used in Heap Sort
+- Used in CPU scheduling
+- Graph algorithms (Dijkstra, Prim)
+
+## 🔹 Time Complexity
+
+<div className="my-6">
+  <table>
+    <thead>
+      <tr>
+        <th className="pr-12">Operation</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="pr-12">Insert</td>
+        <td>O(log n)</td>
+      </tr>
+      <tr>
+        <td className="pr-12">Delete (Extract Min/Max)</td>
+        <td>O(log n)</td>
+      </tr>
+      <tr>
+        <td className="pr-12">Get Min/Max</td>
+        <td>O(1)</td>
+      </tr>
+      <tr>
+        <td className="pr-12">Build Heap</td>
+        <td>O(n)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+---
+
+# 🌱 MIN HEAP
+
+## 🔹 Property
+
+Parent ≤ Left Child
+
+Parent ≤ Right Child
+
+## Example Min Heap
+
+```
+        10
+       /  \
+     20    30
+    /  \
+   40  50
+```
+
+Root always stores the smallest element.
+
+---
+
+# 🔥 MAX HEAP
+
+## 🔹 Property
+
+Parent ≥ Left Child
+
+Parent ≥ Right Child
+
+## Example Max Heap
+
+```
+        50
+       /  \
+     40    30
+    /  \
+   10  20
+```
+
+Root always stores the largest element.
+
+---
+
+# 🔁 HEAP OPERATIONS
+
+## 🔹 Insertion Steps
+
+1. Insert element at last position
+2. Heapify Up (swap with parent until property satisfied)
+
+## 🔹 Deletion (Extract Min / Max)
+
+1. Remove root
+2. Move last element to root
+3. Heapify Down (swap with smallest/largest child)
+
+---
+
+# 💻 MIN HEAP CODE
+
+## 🐍 Python (Min Heap Implementation)
+
+```python
+class MinHeap:
+    def __init__(self):
+        self.h = []
+
+    def insert(self, x):
+        self.h.append(x)
+        i = len(self.h)-1
+        while i>0:
+            p = (i-1)//2
+            if self.h[p] <= self.h[i]: break
+            self.h[p], self.h[i] = self.h[i], self.h[p]
+            i = p
+
+    def extract_min(self):
+        if not self.h: return None
+        root = self.h[0]
+        last = self.h.pop()
+        if self.h:
+            self.h[0] = last
+            self.heapify(0)
+        return root
+
+    def heapify(self, i):
+        n = len(self.h)
+        smallest = i
+        l, r = 2*i+1, 2*i+2
+
+        if l<n and self.h[l] < self.h[smallest]:
+            smallest = l
+        if r<n and self.h[r] < self.h[smallest]:
+            smallest = r
+        if smallest != i:
+            self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
+            self.heapify(smallest)
+
+# Demo
+m = MinHeap()
+for x in [30,20,15,5,10]:
+    m.insert(x)
+print(m.extract_min())  # 5
+```
+
+## 💻 C (Min Heap)
+
+```c
+#include <stdio.h>
+#define MAX 100
+
+int heap[MAX], size=0;
+
+void insert(int x){
+    int i=size++;
+    heap[i]=x;
+    while(i>0){
+        int p=(i-1)/2;
+        if(heap[p]<=heap[i]) break;
+        int t=heap[p]; heap[p]=heap[i]; heap[i]=t;
+        i=p;
+    }
+}
+
+void heapify(int i){
+    int smallest=i;
+    int l=2*i+1, r=2*i+2;
+    if(l<size && heap[l]<heap[smallest]) smallest=l;
+    if(r<size && heap[r]<heap[smallest]) smallest=r;
+    if(smallest!=i){
+        int t=heap[i]; heap[i]=heap[smallest]; heap[smallest]=t;
+        heapify(smallest);
+    }
+}
+
+int extractMin(){
+    int root=heap[0];
+    heap[0]=heap[--size];
+    heapify(0);
+    return root;
+}
+
+int main(){
+    insert(30); insert(20); insert(15); insert(5); insert(10);
+    printf("%d", extractMin());
+}
+```
+
+---
+
+# 💻 MAX HEAP CODE
+
+## 🐍 Python (Max Heap)
+
+```python
+class MaxHeap:
+    def __init__(self):
+        self.h=[]
+
+    def insert(self,x):
+        self.h.append(x)
+        i=len(self.h)-1
+        while i>0:
+            p=(i-1)//2
+            if self.h[p]>=self.h[i]: break
+            self.h[p],self.h[i]=self.h[i],self.h[p]
+            i=p
+
+    def extract_max(self):
+        root=self.h[0]
+        last=self.h.pop()
+        if self.h:
+            self.h[0]=last
+            self.heapify(0)
+        return root
+
+    def heapify(self,i):
+        n=len(self.h)
+        largest=i
+        l,r=2*i+1,2*i+2
+        if l<n and self.h[l]>self.h[largest]: largest=l
+        if r<n and self.h[r]>self.h[largest]: largest=r
+        if largest!=i:
+            self.h[i],self.h[largest]=self.h[largest],self.h[i]
+            self.heapify(largest)
+
+# Demo
+m=MaxHeap()
+for x in [10,20,30,5,15]:
+    m.insert(x)
+print(m.extract_max()) # 30
+```
+
+---
+
+## 🎯 TRAVERSAL NOTE FOR HEAP
+
+Heaps do not use inorder / preorder / postorder for operations.
+
+They are always accessed through array index relationships.
+
+## 🎯 INTERVIEW ONE-LINERS
+
+**Heap:** A complete binary tree stored as an array that satisfies min-heap or max-heap property.
+
+**Min Heap:** Parent ≤ children, root holds minimum value.
+
+**Max Heap:** Parent ≥ children, root holds maximum value.# Binary Heap
+
+A binary heap is a complete binary tree that satisfies the heap property. In a max heap, for any given node I, the value of I is greater than or equal to the values of its children. In a min heap, the value of I is less than or equal to the values of its children.
+
+## Implementation
+
+Here's a complete implementation of both min and max heaps in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int arr[MAX_SIZE];
+    int size;
+    int isMinHeap;  // 1 for min heap, 0 for max heap
+} Heap;
+
+// Initialize heap
+void initHeap(Heap* h, int isMinHeap) {
+    h->size = 0;
+    h->isMinHeap = isMinHeap;
+}
+
+// Get parent index
+int parent(int i) {
+    return (i - 1) / 2;
+}
+
+// Get left child index
+int leftChild(int i) {
+    return 2 * i + 1;
+}
+
+// Get right child index
+int rightChild(int i) {
+    return 2 * i + 2;
+}
+
+// Swap two elements
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Compare based on heap type
+int compareHeap(Heap* h, int a, int b) {
+    if (h->isMinHeap)
+        return a > b;  // Min heap
+    return a < b;      // Max heap
+}
+
+// Heapify up (used after insertion)
+void heapifyUp(Heap* h, int i) {
+    while (i > 0 && compareHeap(h, h->arr[parent(i)], h->arr[i])) {
+        swap(&h->arr[i], &h->arr[parent(i)]);
+        i = parent(i);
+    }
+}
+
+// Heapify down (used after deletion)
+void heapifyDown(Heap* h, int i) {
+    int minMax = i;
+    int left = leftChild(i);
+    int right = rightChild(i);
+
+    if (left < h->size && compareHeap(h, h->arr[minMax], h->arr[left]))
+        minMax = left;
+
+    if (right < h->size && compareHeap(h, h->arr[minMax], h->arr[right]))
+        minMax = right;
+
+    if (minMax != i) {
+        swap(&h->arr[i], &h->arr[minMax]);
+        heapifyDown(h, minMax);
+    }
+}
+
+// Insert element
+void insert(Heap* h, int value) {
+    if (h->size >= MAX_SIZE) {
+        printf("Heap is full\n");
+        return;
+    }
+
+    h->arr[h->size] = value;
+    heapifyUp(h, h->size);
+    h->size++;
+}
+
+// Extract root element
+int extractRoot(Heap* h) {
+    if (h->size <= 0) {
+        printf("Heap is empty\n");
+        return -1;
+    }
+
+    int root = h->arr[0];
+    h->arr[0] = h->arr[h->size - 1];
+    h->size--;
+    heapifyDown(h, 0);
+
+    return root;
+}
+
+// Peek at root element
+int peekRoot(Heap* h) {
+    if (h->size <= 0) {
+        printf("Heap is empty\n");
+        return -1;
+    }
+    return h->arr[0];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    // Create and use a min heap
+    Heap minHeap;
+    initHeap(&minHeap, 1);
+
+    insert(&minHeap, 3);
+    insert(&minHeap, 2);
+    insert(&minHeap, 1);
+    insert(&minHeap, 15);
+    insert(&minHeap, 5);
+
+    printf("Min element: %d\n", extractRoot(&minHeap));  // 1
+    printf("Next min: %d\n", extractRoot(&minHeap));     // 2
+
+    // Create and use a max heap
+    Heap maxHeap;
+    initHeap(&maxHeap, 0);
+
+    insert(&maxHeap, 3);
+    insert(&maxHeap, 2);
+    insert(&maxHeap, 1);
+    insert(&maxHeap, 15);
+    insert(&maxHeap, 5);
+
+    printf("Max element: %d\n", extractRoot(&maxHeap));  // 15
+    printf("Next max: %d\n", extractRoot(&maxHeap));     // 5
+
+    return 0;
+}
+```
+
+## Properties
+
+- Complete Binary Tree: All levels are filled except possibly the last level
+- Heap Property: Parent-child relationship follows either max-heap or min-heap property
+- Array Representation: Can be efficiently stored in an array where:
+  - For node at index i:
+  - Left child: 2i + 1
+  - Right child: 2i + 2
+  - Parent: floor((i-1)/2)
+
+## Operations
+
+### Insertion (O(log n))
+1. Add element at the next available position
+2. Compare with parent and swap if heap property is violated
+3. Continue until heap property is satisfied (heapify-up)
+
+### Deletion (O(log n))
+1. Remove root element
+2. Replace with last element
+3. Compare with children and swap with larger (max-heap) or smaller (min-heap) child
+4. Continue until heap property is satisfied (heapify-down)
+
+## Applications
+- Priority Queues
+- Heap Sort
+- Graph Algorithms (Dijkstra's, Prim's)
+- Memory Management
+- Event-driven Simulation

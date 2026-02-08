@@ -1,0 +1,478 @@
+# INFIX TO POSTFIX CONVERSION
+
+## 🔹 What is Infix Expression?
+
+An Infix Expression is the usual mathematical form where operators are written between operands.
+
+Example:
+
+`A + B * C`
+
+## 🔹 What is Postfix Expression?
+
+A Postfix Expression (Reverse Polish Notation) is where operators come after operands.
+
+Example:
+
+`A B C * +`
+
+## 🔹 Why Convert Infix to Postfix?
+
+- Infix needs parentheses & precedence rules
+- Postfix can be evaluated directly using a stack
+- Used in compilers and calculators
+
+## 🔹 Operator Precedence
+
+<div className="my-6">
+  <table>
+    <thead>
+      <tr>
+        <th className="pr-12">Operator</th>
+        <th className="pr-12">Precedence</th>
+        <th>Associativity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="pr-12">^</td>
+        <td className="pr-12">3</td>
+        <td>Right</td>
+      </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`*, /`}</span></td>
+                <td className="pr-12">2</td>
+                <td>Left</td>
+            </tr>
+      <tr>
+        <td className="pr-12">+, -</td>
+        <td className="pr-12">1</td>
+        <td>Left</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## 🔹 Conversion Algorithm (Using Stack)
+
+Steps:
+
+1. Scan infix expression from left to right
+2. If operand → add to postfix output
+3. If '(' → push to stack
+4. If ')' → pop until '(' found
+5. If operator:
+   - Pop operators from stack with higher or equal precedence
+   - Push current operator
+6. After scanning → pop remaining operators
+
+## 🔹 Example Conversion
+
+Infix:
+
+`(A+B)*(C-D)`
+
+Step-by-step:
+
+<div className="my-6">
+  <table>
+    <thead>
+      <tr>
+        <th className="pr-12">Scan</th>
+        <th className="pr-12">Stack</th>
+        <th>Postfix</th>
+      </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`(`}</span></td>
+                <td className="pr-12"><span className="font-mono">{`(`}</span></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">A</span></td>
+                <td className="pr-12"><span className="font-mono">{`(`}</span></td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">+</span></td>
+                <td className="pr-12"><span className="font-mono">{`( +`}</span></td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">B</span></td>
+                <td className="pr-12"><span className="font-mono">{`( +`}</span></td>
+                <td>AB</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`)`}</span></td>
+                <td className="pr-12"></td>
+                <td>AB+</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`*`}</span></td>
+                <td className="pr-12"><span className="font-mono">{`*`}</span></td>
+                <td>AB+</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`(`}</span></td>
+                <td className="pr-12"><span className="font-mono">{`* (`}</span></td>
+                <td>AB+</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">C</span></td>
+                <td className="pr-12"><span className="font-mono">{`* (`}</span></td>
+                <td>AB+C</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">-</span></td>
+                <td className="pr-12"><span className="font-mono">{`* ( -`}</span></td>
+                <td>AB+C</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">D</span></td>
+                <td className="pr-12"><span className="font-mono">{`* ( -`}</span></td>
+                <td>AB+CD</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">{`)`}</span></td>
+                <td className="pr-12"><span className="font-mono">{`*`}</span></td>
+                <td>AB+CD-</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><span className="font-mono">End</span></td>
+                <td className="pr-12"></td>
+                <td><span className="font-mono">{`AB+CD-*`}</span></td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+✅ Final Postfix:
+
+`AB+CD-*`
+
+## 🔹 Time Complexity
+
+O(n)
+
+## 🔹 Applications
+
+- Expression evaluation
+- Compiler design
+- Calculator parsing
+
+## 💻 INFIX → POSTFIX CODE
+
+### 🐍 Python
+
+```python
+def precedence(c):
+    if c=='^': return 3
+    if c in '*/': return 2
+    if c in '+-': return 1
+    return 0
+
+def infix_to_postfix(exp):
+    stack, output = [], ""
+    for c in exp:
+        if c.isalnum():
+            output += c
+        elif c == '(':
+            stack.append(c)
+        elif c == ')':
+            while stack and stack[-1] != '(':
+                output += stack.pop()
+            stack.pop()
+        else:
+            while stack and precedence(stack[-1]) >= precedence(c):
+                output += stack.pop()
+            stack.append(c)
+    while stack:
+        output += stack.pop()
+    return output
+
+print(infix_to_postfix("(A+B)*(C-D)"))
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <ctype.h>
+
+char stack[100];
+int top=-1;
+
+int prec(char c){
+    if(c=='^') return 3;
+    if(c=='*' || c=='/') return 2;
+    if(c=='+' || c=='-') return 1;
+    return 0;
+}
+
+void push(char c){ stack[++top]=c; }
+char pop(){ return stack[top--]; }
+
+int main(){
+    char exp[100], out[100];
+    scanf("%s",exp);
+    int k=0;
+
+    for(int i=0; exp[i]; i++){
+        char c=exp[i];
+        if(isalnum(c)) out[k++]=c;
+        else if(c=='(') push(c);
+        else if(c==')'){
+            while(stack[top]!='(')
+                out[k++]=pop();
+            pop();
+        }
+        else{
+            while(top!=-1 && prec(stack[top])>=prec(c))
+                out[k++]=pop();
+            push(c);
+        }
+    }
+    while(top!=-1)
+        out[k++]=pop();
+
+    out[k]='\0';
+    printf("%s",out);
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+#include <stack>
+using namespace std;
+
+int prec(char c){
+    if(c=='^') return 3;
+    if(c=='*'||c=='/') return 2;
+    if(c=='+'||c=='-') return 1;
+    return 0;
+}
+
+int main(){
+    string exp, out="";
+    cin>>exp;
+    stack<char> st;
+
+    for(char c:exp){
+        if(isalnum(c)) out+=c;
+        else if(c=='(') st.push(c);
+        else if(c==')'){
+            while(st.top()!='('){
+                out+=st.top(); st.pop();
+            }
+            st.pop();
+        }
+        else{
+            while(!st.empty() && prec(st.top())>=prec(c)){
+                out+=st.top(); st.pop();
+            }
+            st.push(c);
+        }
+    }
+    while(!st.empty()){
+        out+=st.top(); st.pop();
+    }
+    cout<<out;
+}
+```
+
+### ☕ Java
+
+```java
+import java.util.*;
+
+class InfixToPostfix {
+    static int prec(char c){
+        if(c=='^') return 3;
+        if(c=='*'||c=='/') return 2;
+        if(c=='+'||c=='-') return 1;
+        return 0;
+    }
+
+    public static void main(String[] args){
+        Scanner sc=new Scanner(System.in);
+        String exp=sc.next();
+        Stack<Character> st=new Stack<>();
+        String out="";
+
+        for(char c:exp.toCharArray()){
+            if(Character.isLetterOrDigit(c)) out+=c;
+            else if(c=='(') st.push(c);
+            else if(c==')'){
+                while(st.peek()!='(')
+                    out+=st.pop();
+                st.pop();
+            }
+            else{
+                while(!st.empty() && prec(st.peek())>=prec(c))
+                    out+=st.pop();
+                st.push(c);
+            }
+        }
+        while(!st.empty())
+            out+=st.pop();
+
+        System.out.print(out);
+    }
+}
+```# Stack Applications
+
+## Infix to Postfix Conversion
+
+Converting infix expressions (e.g., `3 + 4 * 2`) to postfix notation (e.g., `3 4 2 * +`) using a stack.
+
+## Implementation
+
+Here's the implementation in C:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_SIZE 100
+
+// Stack implementation
+typedef struct {
+    char items[MAX_SIZE];
+    int top;
+} Stack;
+
+void initStack(Stack* s) {
+    s->top = -1;
+}
+
+void push(Stack* s, char c) {
+    s->items[++s->top] = c;
+}
+
+char pop(Stack* s) {
+    return s->items[s->top--];
+}
+
+char peek(Stack* s) {
+    return s->items[s->top];
+}
+
+int isEmpty(Stack* s) {
+    return s->top == -1;
+}
+
+// Get operator precedence
+int precedence(char operator) {
+    switch (operator) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        case '^':
+            return 3;
+    }
+    return -1;
+}
+
+// Check if character is operator
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+
+// Convert infix to postfix
+void infixToPostfix(char* infix, char* postfix) {
+    Stack stack;
+    initStack(&stack);
+
+    int i, j = 0;
+    char ch;
+
+    for (i = 0; infix[i] != '\0'; i++) {
+        ch = infix[i];
+
+        // If operand, add to output
+        if (isalnum(ch)) {
+            postfix[j++] = ch;
+        }
+        // If '(', push to stack
+        else if (ch == '(') {
+            push(&stack, ch);
+        }
+        // If ')', pop until '(' is found
+        else if (ch == ')') {
+            while (!isEmpty(&stack) && peek(&stack) != '(') {
+                postfix[j++] = pop(&stack);
+            }
+            pop(&stack); // Remove '('
+        }
+        // If operator
+        else if (isOperator(ch)) {
+            while (!isEmpty(&stack) && peek(&stack) != '(' &&
+                   precedence(ch) <= precedence(peek(&stack))) {
+                postfix[j++] = pop(&stack);
+            }
+            push(&stack, ch);
+        }
+    }
+
+    // Pop remaining operators
+    while (!isEmpty(&stack)) {
+        postfix[j++] = pop(&stack);
+    }
+
+    postfix[j] = '\0';
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    char infix[] = "a+b*(c^d-e)^(f+g*h)-i";
+    char postfix[MAX_SIZE];
+
+    infixToPostfix(infix, postfix);
+    printf("Infix: %s\n", infix);
+    printf("Postfix: %s\n", postfix);
+
+    return 0;
+}
+```
+
+## Algorithm Steps
+
+1. Scan the infix expression from left to right
+2. If the scanned character is:
+   - An operand (letter/number): Add it to output
+   - A left parenthesis '(': Push it to stack
+   - A right parenthesis ')': Pop stack and add to output until '(' is found
+   - An operator: Pop stack and add to output until a lower precedence operator is found
+
+### Operator Precedence
+1. Parentheses: ( )
+2. Exponentiation: ^
+3. Multiplication and Division: * /
+4. Addition and Subtraction: + -
+
+## Example Conversions
+
+| Infix Expression | Postfix Expression |
+|-----------------|-------------------|
+| `a + b` | `a b +` |
+| `a + b * c` | `a b c * +` |
+| `(a + b) * c` | `a b + c *` |
+| `a + b * c / d` | `a b c * d / +` |
+
+## Applications
+- Expression evaluation in compilers
+- Calculator applications
+- Syntax parsing
+- Mathematical expression analysis

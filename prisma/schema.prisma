@@ -1,0 +1,1737 @@
+// ============================================================================
+// SkillForge AI — Prisma Schema for PostgreSQL (Neon)
+// ============================================================================
+// This schema maps ALL 32 MongoDB/Mongoose models to PostgreSQL relational tables.
+// Target: Neon PostgreSQL (serverless Postgres)
+//
+// Conventions:
+//   - MongoDB ObjectId → PostgreSQL UUID (with @default(uuid()))
+//   - Embedded sub-documents → separate tables or Json fields
+//   - Mixed/Object fields → Json type
+//   - Arrays of primitives → PostgreSQL native arrays or Json
+//   - Timestamps (createdAt, updatedAt) → @updatedAt + default(now())
+//   - MongoDB indexes → @@index directives
+//   - MongoDB unique constraints → @unique
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")     // Neon connection string
+  directUrl = env("DIRECT_URL")       // Neon direct (non-pooled) connection
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  student
+  admin
+  recruiter
+  company_admin
+}
+
+enum AuthProvider {
+  local
+  google
+  github
+}
+
+enum SkillLevel {
+  beginner
+  intermediate
+  advanced
+}
+
+enum PreferredLanguage {
+  english
+  tamil
+  hindi
+}
+
+enum RoleCategory {
+  development
+  data
+  security
+  cloud
+  design
+  management
+  other
+}
+
+enum DemandLevel {
+  low
+  medium
+  high
+  very_high
+}
+
+enum TopicDifficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+enum TestQuestionType {
+  multiple_choice
+  true_false
+  short_answer
+}
+
+enum AIChatSessionType {
+  teacher
+  tutor
+  mentor
+  interviewer
+}
+
+enum AIChatSessionStatus {
+  active
+  ended
+}
+
+enum AIChatMessageRole {
+  system
+  user
+  assistant
+}
+
+enum CareerAnalysisType {
+  leetcode
+  github
+  resume
+}
+
+enum ConnectionStatus {
+  pending
+  accepted
+  blocked
+}
+
+enum ConnectionType {
+  follow
+  friend
+}
+
+enum MessageType {
+  text
+  file
+  code
+}
+
+enum MentorStatus {
+  pending
+  approved
+  rejected
+}
+
+enum MentoringSessionStatus {
+  pending
+  accepted
+  completed
+  cancelled
+}
+
+enum ProjectSubmissionStatus {
+  submitted
+  under_review
+  approved
+  rejected
+}
+
+enum JobType {
+  full_time   @map("full-time")
+  part_time   @map("part-time")
+  contract
+  internship
+}
+
+enum JobApplicationStatus {
+  submitted
+  under_review    @map("under-review")
+  shortlisted
+  interview_scheduled @map("interview-scheduled")
+  offer_sent      @map("offer-sent")
+  rejected
+  accepted
+}
+
+enum CompanyStatus {
+  active
+  suspended
+  pending
+}
+
+enum CompanyPlan {
+  free
+  basic
+  premium
+  enterprise
+}
+
+enum CompanySize {
+  size_1_10     @map("1-10")
+  size_11_50    @map("11-50")
+  size_51_200   @map("51-200")
+  size_201_500  @map("201-500")
+  size_501_1000 @map("501-1000")
+  size_1000_plus @map("1000+")
+}
+
+enum RecruiterStatus {
+  pending
+  active
+  suspended
+}
+
+enum RecruiterSubscription {
+  free
+  basic
+  premium
+}
+
+enum HackathonStatus {
+  upcoming
+  ongoing
+  ended
+}
+
+enum ChallengeType {
+  daily
+  weekly
+  special
+}
+
+enum TimeTrackingContentType {
+  roadmap_topic   @map("roadmap-topic")
+  language_topic  @map("language-topic")
+}
+
+enum TimeTrackingStatus {
+  active
+  paused
+  completed
+  abandoned
+}
+
+enum TimeTrackingActivity {
+  watching_video  @map("watching-video")
+  reading_docs    @map("reading-docs")
+  ai_teaching     @map("ai-teaching")
+  taking_test     @map("taking-test")
+  reviewing
+}
+
+enum PauseReason {
+  tab_change
+  page_exit
+  manual
+  idle
+  other
+}
+
+enum StudyPlanTopicStatus {
+  pending
+  in_progress  @map("in-progress")
+  completed
+  skipped
+}
+
+enum LeetCodeDifficulty {
+  easy
+  medium
+  hard
+}
+
+enum LeetCodeStatus {
+  accepted
+  wrong_answer
+  time_limit_exceeded
+  runtime_error
+  compile_error
+}
+
+// ============================================================================
+// 1. USER
+// ============================================================================
+
+model User {
+  id            String       @id @default(uuid())
+  name          String       @unique
+  email         String       @unique
+  password      String?      // null for OAuth-only users
+  role          UserRole     @default(student)
+  authProvider  AuthProvider  @default(local)
+  googleId      String?      @unique
+  githubId      String?      @unique
+  avatar        String       @default("")
+  isActive      Boolean      @default(true)
+  isEmailVerified Boolean    @default(false)
+  isOnboarded   Boolean      @default(false)
+  lastLogin     DateTime?
+  lastActive    DateTime?    @default(now())
+
+  // Professional Profile (embedded in Mongo)
+  currentStatus  String?     // 'Student', 'Working', 'Open to Work', 'Freelancing', 'Looking for Internship'
+  skills         String[]    @default([])
+  projects       Json?       // [{ title, description, link, techStack[], imageUrl, startDate, endDate, isCurrent }]
+  experience     Json?       // [{ title, company, location, startDate, endDate, isCurrent, description }]
+
+  // Preferences (embedded in Mongo → separate fields here)
+  prefTargetRoleId    String?
+  prefTargetRole      Role?           @relation("UserTargetRole", fields: [prefTargetRoleId], references: [id])
+  prefSkillLevel      SkillLevel      @default(beginner)
+  prefDailyStudyTime  Int             @default(2)      // hours
+  prefPreferredLang   PreferredLanguage @default(english)
+
+  // Study time tracking (embedded array in Mongo → Json)
+  studyTime          Json?    // [{ date, minutes, topicsCompleted, sessions[] }]
+
+  // Weekly goal (embedded in Mongo)
+  weeklyGoalTargetMinutes  Int   @default(600)
+  weeklyGoalTargetTopics   Int   @default(5)
+  weeklyGoalWeekStartDate  DateTime?
+  weeklyGoalLastUpdated    DateTime?
+
+  // Career data (embedded in Mongo)
+  careerLeetcodeUsername  String?
+  careerGithubUsername    String?
+  careerResumeUrl         String?
+  careerLastLeetcodeAnalysis DateTime?
+  careerLastGithubAnalysis   DateTime?
+  careerLastResumeAnalysis   DateTime?
+  careerReadinessScore       Json?    // { overall, leetcodeScore, githubScore, resumeScore, weights, targetRole, lastCalculated }
+
+  // Gamification (embedded in Mongo)
+  gamificationXp         Int      @default(0)
+  gamificationLevel      Int      @default(1)
+  gamificationPoints     Int      @default(0)
+  gamificationBadgesInline Json?  // [{ name, earnedAt }] — inline badge names (separate from UserBadge)
+  gamificationPowerups   Json?    // [{ type, count, expiresAt }]
+
+  // Auth tokens (embedded in Mongo)
+  emailVerificationToken  String?
+  passwordResetToken      String?
+  passwordResetExpires    DateTime?
+
+  // Referral (embedded in Mongo)
+  referralCode          String?   @unique
+  referralReferredById  String?
+  referralReferredBy    User?     @relation("UserReferral", fields: [referralReferredById], references: [id])
+  referralReferrals     User[]    @relation("UserReferral")
+  referralCount         Int       @default(0)
+
+  // Job outcomes (embedded array in Mongo → separate table)
+  // see UserJobOutcome below
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  enrolledRoadmaps      UserEnrolledRoadmap[]
+  languageLearning      UserLanguageLearning[]
+  testAttempts          TestAttempt[]
+  aiChatSessions        AIChatSession[]
+  dailyStudyPlans       DailyStudyPlan[]
+  careerAnalyses        CareerAnalysis[]
+  certificates          Certificate[]
+  leetCodeSubmissions   LeetCodeSubmission[]
+  timeTrackingSessions  TimeTrackingSession[]
+  projectSubmissions    ProjectSubmission[]
+  peerReviews           PeerReview[]
+  communityPosts        CommunityPost[]
+  communityComments     CommunityComment[]
+  mentorProfile         MentorProfile?
+  mentoringSessionsMentee MentoringSession[] @relation("MenteeSessions")
+  connectionsAsUser     Connection[]         @relation("ConnectionUser")
+  connectionsAsFollower Connection[]         @relation("ConnectionFollower")
+  sentMessages          Message[]            @relation("SentMessages")
+  receivedMessages      Message[]            @relation("ReceivedMessages")
+  createdStudyRooms     StudyRoom[]
+  leaderboardEntry      Leaderboard?
+  auditLogs             AuditLog[]
+  jobOutcomes           UserJobOutcome[]
+  skillBadges           UserBadge[]
+  recruiterProfile      Recruiter?
+  adminCompanies        Company[]            @relation("CompanyAdmin")
+  hackathonsOrganized   Hackathon[]          @relation("HackathonOrganizer")
+  roadmapReviews        RoadmapReview[]
+  cohortsMentored       Cohort[]             @relation("CohortMentor")
+  cohortMemberships     CohortMember[]
+  jobApplications       JobApplication[]
+  challengeParticipations ChallengeParticipant[]
+  hackathonParticipations HackathonParticipant[]
+  studyRoomMemberships    StudyRoomMember[]
+
+  // Upvote/downvote join tables
+  postUpvotes           PostUpvote[]
+  postDownvotes         PostDownvote[]
+
+  @@index([email])
+  @@index([role])
+  @@index([gamificationXp])
+  @@map("users")
+}
+
+// User → enrolled roadmaps (was embedded array in Mongo)
+model UserEnrolledRoadmap {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmapId       String
+  roadmap         Roadmap   @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  status          String    @default("active")  // current, active, completed, paused
+  progress        Float     @default(0)   // 0-100
+  enrolledAt      DateTime  @default(now())
+  completedAt     DateTime?
+
+  completedTopics UserCompletedTopic[]
+
+  @@unique([userId, roadmapId])
+  @@index([userId])
+  @@map("user_enrolled_roadmaps")
+}
+
+model UserCompletedTopic {
+  id                    String    @id @default(uuid())
+  enrollmentId          String
+  enrollment            UserEnrolledRoadmap @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  topicId               String
+  topic                 Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  completedAt           DateTime  @default(now())
+  timeSpent             Int?      // minutes
+  testScore             Float?
+
+  @@unique([enrollmentId, topicId])
+  @@map("user_completed_topics")
+}
+
+// User → language learning progress (was embedded array in Mongo)
+model UserLanguageLearning {
+  id              String              @id @default(uuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  languageId      String
+  language        ProgrammingLanguage @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  level           SkillLevel          @default(beginner)
+  progress        Float               @default(0)  // 0-100
+  startedAt       DateTime            @default(now())
+  completedAt     DateTime?
+
+  completedTopics UserCompletedLanguageTopic[]
+
+  @@unique([userId, languageId])
+  @@map("user_language_learning")
+}
+
+model UserCompletedLanguageTopic {
+  id            String               @id @default(uuid())
+  learningId    String
+  learning      UserLanguageLearning @relation(fields: [learningId], references: [id], onDelete: Cascade)
+  topicId       String
+  topic         LanguageTopic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  completedAt   DateTime             @default(now())
+  timeSpent     Int?                 // minutes
+
+  @@unique([learningId, topicId])
+  @@map("user_completed_language_topics")
+}
+
+// User → job outcomes (was embedded array in Mongo)
+model UserJobOutcome {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status        String    @default("applied")  // applied, interviewing, offer, placed, rejected
+  company       String    @default("")
+  role          String    @default("")
+  source        String    @default("")
+  salary        String    @default("")
+  location      String    @default("")
+  notes         String    @default("")
+  date          DateTime  @default(now())
+
+  @@index([userId])
+  @@map("user_job_outcomes")
+}
+
+// User → badges (was embedded array in Mongo user.gamification.badges)
+model UserBadge {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId     String
+  badge       SkillBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedAt   DateTime  @default(now())
+  reason      String    @default("")
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+// ============================================================================
+// 2. ROLE
+// ============================================================================
+
+model Role {
+  id              String       @id @default(uuid())
+  name            String       @unique
+  slug            String       @unique
+  description     String       @default("")
+  category        RoleCategory @default(development)
+  icon            String       @default("💻")
+  aliases         String[]     @default([])
+  keywords        String[]     @default([])
+  requiredSkills  String[]     @default([])
+  salaryRangeMin  Int?
+  salaryRangeMax  Int?
+  salaryCurrency  String       @default("USD")
+  demandLevel     DemandLevel  @default(medium)
+  isActive        Boolean      @default(true)
+  enrollmentCount Int          @default(0)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  usersTargeting  User[]     @relation("UserTargetRole")
+  roadmaps        Roadmap[]
+  relatedRoles    RoleRelation[] @relation("RoleFrom")
+  relatedFrom     RoleRelation[] @relation("RoleTo")
+  aiChatSessions  AIChatSession[]
+
+  @@index([slug])
+  @@index([category])
+  @@map("roles")
+}
+
+// Self-referencing many-to-many for related roles
+model RoleRelation {
+  id        String @id @default(uuid())
+  fromId    String
+  from      Role   @relation("RoleFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId      String
+  to        Role   @relation("RoleTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+  @@map("role_relations")
+}
+
+// ============================================================================
+// 3. ROADMAP
+// ============================================================================
+
+model Roadmap {
+  id                String     @id @default(uuid())
+  title             String
+  slug              String     @unique
+  description       String     @default("")
+  roleId            String
+  role              Role       @relation(fields: [roleId], references: [id])
+  skillLevel        SkillLevel @default(beginner)
+  thumbnail         String     @default("")
+  estimatedDuration Int        @default(0)   // total minutes
+  isPublished       Boolean    @default(false)
+  isActive          Boolean    @default(true)
+  publishedAt       DateTime?
+  tags              String[]   @default([])
+  createdById       String?
+
+  // Test config (embedded in Mongo)
+  testPassingPercentage   Int    @default(50)
+  testQuestionsPerTopic   Int    @default(5)
+  testTimePerQuestion     Int?   // seconds (Mongoose: timePerQuestion)
+  testMaxAttempts         Int    @default(3)
+  testTimeLimitMinutes    Int?   // total time limit in minutes
+
+  // Stats (embedded in Mongo)
+  statsEnrollments    Int    @default(0)   // enrollmentCount
+  statsCompletions    Int    @default(0)   // completionCount
+  statsAvgRating      Float  @default(0)   // averageRating
+  statsTotalRatings   Int    @default(0)   // totalRatings
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  topics              Topic[]
+  enrollments         UserEnrolledRoadmap[]
+  testAttempts        TestAttempt[]
+  dailyStudyPlans     DailyStudyPlan[]
+  certificates        Certificate[]
+  reviews             RoadmapReview[]
+  projectSubmissions  ProjectSubmission[]
+  prerequisites       RoadmapPrerequisite[] @relation("RoadmapPrereq")
+  prerequisiteFor     RoadmapPrerequisite[] @relation("RoadmapPrereqFor")
+  studyRooms          StudyRoom[]
+  timeTrackingSessions TimeTrackingSession[]
+
+  @@index([slug])
+  @@index([roleId])
+  @@index([skillLevel])
+  @@map("roadmaps")
+}
+
+// Roadmap reviews (was embedded array in Mongo)
+model RoadmapReview {
+  id         String   @id @default(uuid())
+  roadmapId  String
+  roadmap    Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int      // 1-5
+  comment    String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@unique([roadmapId, userId])
+  @@map("roadmap_reviews")
+}
+
+// Roadmap prerequisites (was array of ObjectIds in Mongo)
+model RoadmapPrerequisite {
+  id              String  @id @default(uuid())
+  roadmapId       String
+  roadmap         Roadmap @relation("RoadmapPrereq", fields: [roadmapId], references: [id], onDelete: Cascade)
+  prerequisiteId  String
+  prerequisite    Roadmap @relation("RoadmapPrereqFor", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@unique([roadmapId, prerequisiteId])
+  @@map("roadmap_prerequisites")
+}
+
+// ============================================================================
+// 4. TOPIC
+// ============================================================================
+
+model Topic {
+  id                String          @id @default(uuid())
+  title             String
+  slug              String          @unique
+  roadmapId         String
+  roadmap           Roadmap         @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  order             Int             @default(0)
+  description       String          @default("")
+  estimatedDuration Int             @default(30)  // minutes
+  difficulty        TopicDifficulty @default(beginner)
+  objectives        String[]        @default([])
+  keyConcepts       String[]        @default([])
+
+  // Video links (embedded object in Mongo → Json)
+  videoLinksEnglish   Json?  // { url, videoId, title, duration }
+  videoLinksTamil     Json?
+  videoLinksHindi     Json?
+
+  // Documentation (embedded in Mongo)
+  documentationContent  String?   @db.Text
+  documentationFileUrl  String?
+
+  // AI cache (embedded in Mongo)
+  aiCacheTranscript     String?   @db.Text
+  aiCacheLastGenerated  DateTime?
+
+  // Stats (embedded in Mongo)
+  statsCompletions    Int    @default(0)
+  statsAvgScore       Float  @default(0)
+  statsAvgTimeSpent   Float  @default(0)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  testAttempts         TestAttempt[]
+  aiChatSessions       AIChatSession[]
+  completedByUsers     UserCompletedTopic[]
+  timeTrackingSessions TimeTrackingSession[]
+  studyPlanTopics      StudyPlanTopic[]
+  studyRooms           StudyRoom[]
+
+  @@index([roadmapId, order])
+  @@index([slug])
+  @@map("topics")
+}
+
+// ============================================================================
+// 5. TEST ATTEMPT
+// ============================================================================
+
+model TestAttempt {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId         String
+  topic           Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  roadmapId       String?
+  roadmap         Roadmap? @relation(fields: [roadmapId], references: [id])
+  attemptNumber   Int      @default(1)
+
+  // Questions (was embedded array in Mongo → Json array)
+  questions       Json     // [{ questionText, questionType, options[], correctAnswer, userAnswer, isCorrect }]
+
+  // Score (embedded in Mongo)
+  totalQuestions  Int      @default(0)
+  correctAnswers  Int      @default(0)
+  percentage      Float    @default(0)
+  passed          Boolean  @default(false)
+
+  // Timing (embedded in Mongo)
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  timeTaken       Int?      // seconds
+
+  // Feedback
+  feedback        String?
+  aiFeedback      String?   @db.Text
+  generatedBy     String    @default("ai")  // ai, manual
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId, topicId])
+  @@index([userId, roadmapId])
+  @@map("test_attempts")
+}
+
+// ============================================================================
+// 6. AI CHAT SESSION
+// ============================================================================
+
+model AIChatSession {
+  id         String              @id @default(uuid())
+  userId     String
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       AIChatSessionType
+  status     AIChatSessionStatus @default(active)
+
+  // Context (embedded in Mongo)
+  contextTopicId      String?
+  contextTopic        Topic?   @relation(fields: [contextTopicId], references: [id])
+  contextRoleId       String?
+  contextRole         Role?    @relation(fields: [contextRoleId], references: [id])
+  contextLanguage     String?
+  contextAdditional   Json?
+
+  // Interview data (embedded in Mongo → Json)
+  interviewData       Json?    // { role, difficulty, topics[], questionsAsked[] }
+
+  // Stats (embedded in Mongo)
+  statsTotalMessages    Int       @default(0)
+  statsTotalTokens      Int       @default(0)
+  statsDuration         Int?      // seconds
+  statsUserMessages     Int       @default(0)
+  statsAiMessages       Int       @default(0)
+
+  startedAt  DateTime  @default(now())
+  endedAt    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  messages   AIChatMessage[]
+
+  @@index([userId, type])
+  @@index([userId, startedAt])
+  @@map("ai_chat_sessions")
+}
+
+// AI Chat messages (was embedded array in Mongo → separate table)
+model AIChatMessage {
+  id          String           @id @default(uuid())
+  sessionId   String
+  session     AIChatSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role        AIChatMessageRole
+  content     String           @db.Text
+  timestamp   DateTime         @default(now())
+
+  // Metadata (embedded in Mongo)
+  tokensUsed  Int?
+  model       String?
+
+  @@index([sessionId, timestamp])
+  @@map("ai_chat_messages")
+}
+
+// ============================================================================
+// 7. DAILY STUDY PLAN
+// ============================================================================
+
+model DailyStudyPlan {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  roadmapId       String?
+  roadmap         Roadmap?  @relation(fields: [roadmapId], references: [id])
+  plannedTime     Int       @default(0)  // minutes
+  status          String    @default("pending")  // pending, in-progress, completed, partial, missed
+  notes           String?
+
+  // Summary (embedded in Mongo)
+  summaryTotalTopics         Int     @default(0)
+  summaryCompletedTopics     Int     @default(0)
+  summaryTotalPlannedMinutes Int     @default(0)
+  summaryActualMinutesSpent  Int     @default(0)
+  summaryCompletionPercent   Float   @default(0)
+
+  // AI suggestions (embedded array in Mongo → Json)
+  aiSuggestions   Json?    // [{ message, type }]  where type = 'tip'|'motivation'|'reminder'|'warning'
+
+  generatedAt    DateTime  @default(now())
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  assignedTopics  StudyPlanTopic[]
+  languageTopics  StudyPlanLanguageTopic[]
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_study_plans")
+}
+
+// Study plan → assigned topics (was embedded array in Mongo)
+model StudyPlanTopic {
+  id                String              @id @default(uuid())
+  studyPlanId       String
+  studyPlan         DailyStudyPlan      @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  topicId           String
+  topic             Topic               @relation(fields: [topicId], references: [id])
+  estimatedDuration Int                 @default(30)
+  priority          Int                 @default(1)  // 1 = highest
+  status            StudyPlanTopicStatus @default(pending)
+  isRolledOver      Boolean             @default(false)
+  rolledOverFrom    DateTime?           // original date if rolled over
+  completedAt       DateTime?
+  actualTimeSpent   Int?                // minutes
+
+  @@map("study_plan_topics")
+}
+
+// Study plan → language topics (was embedded array in Mongo)
+model StudyPlanLanguageTopic {
+  id                String              @id @default(uuid())
+  studyPlanId       String
+  studyPlan         DailyStudyPlan      @relation(fields: [studyPlanId], references: [id], onDelete: Cascade)
+  topicId           String
+  topic             LanguageTopic       @relation(fields: [topicId], references: [id])
+  estimatedDuration Int                 @default(30)
+  status            StudyPlanTopicStatus @default(pending)
+  isRolledOver      Boolean             @default(false)
+  completedAt       DateTime?
+  actualTimeSpent   Int?                // minutes
+
+  @@map("study_plan_language_topics")
+}
+
+// ============================================================================
+// 8. CAREER ANALYSIS
+// ============================================================================
+
+model CareerAnalysis {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      CareerAnalysisType
+
+  // LeetCode stats (embedded in Mongo → Json)
+  leetcodeStats         Json?  // { totalSolved, easySolved, mediumSolved, hardSolved, ranking, acceptanceRate }
+  leetcodeCalendar      Json?  // heatmap data
+  leetcodeTopicWise     Json?  // [{ topic, solved, total }]
+  leetcodeScore         Int?
+
+  // GitHub stats (embedded in Mongo → Json)
+  githubStats           Json?  // { publicRepos, totalStars, totalForks, followers, totalCommits }
+  githubTopRepos        Json?  // [{ name, description, language, stars, forks, url }]
+  githubLanguageBreak   Json?  // [{ language, percentage, color }]
+  githubScore           Int?
+
+  // Resume stats (embedded in Mongo → Json)
+  resumeText            String?  @db.Text
+  resumeAtsScore        Int?
+  resumeSections        Json?    // { contactInfo, summary, experience, education, skills, projects }
+  resumeKeywords        Json?    // { found[], missing[], recommended[] }
+  resumeFormatting      Json?
+  resumeMistakes        Json?
+
+  // AI insights (embedded in Mongo → Json)
+  aiInsights            Json?  // { summary, strengths[], weaknesses[], recommendations[], actionPlan[] }
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId, type])
+  @@map("career_analyses")
+}
+
+// ============================================================================
+// 9. CERTIFICATE
+// ============================================================================
+
+model Certificate {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmapId       String
+  roadmap         Roadmap  @relation(fields: [roadmapId], references: [id])
+  certificateId   String   @unique  // human-readable unique ID
+  issueDate       DateTime @default(now())
+  verificationUrl String?
+  revoked         Boolean  @default(false)
+  revokedAt       DateTime?
+
+  // Metadata (embedded in Mongo → Json)
+  metadata        Json?    // { userName, roadmapTitle, completionDate, score }
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([certificateId])
+  @@map("certificates")
+}
+
+// ============================================================================
+// 10. PROGRAMMING LANGUAGE
+// ============================================================================
+
+model ProgrammingLanguage {
+  id               String   @id @default(uuid())
+  name             String   @unique
+  slug             String   @unique
+  description      String   @default("")
+  logo             String   @default("")
+  color            String   @default("#000000")
+  useCases         String[] @default([])
+  relatedLanguages String[] @default([])
+  isActive         Boolean  @default(true)
+
+  // Stats (embedded in Mongo)
+  statsEnrollments  Int   @default(0)
+  statsCompletions  Int   @default(0)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  topics             LanguageTopic[]
+  userLearning       UserLanguageLearning[]
+  timeTrackingSessions TimeTrackingSession[]
+
+  @@index([slug])
+  @@map("programming_languages")
+}
+
+// ============================================================================
+// 11. LANGUAGE TOPIC
+// ============================================================================
+
+model LanguageTopic {
+  id              String              @id @default(uuid())
+  title           String
+  slug            String              @unique
+  languageId      String
+  language        ProgrammingLanguage @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  level           SkillLevel          @default(beginner)
+  order           Int                 @default(0)
+  description     String              @default("")
+  estimatedDuration Int               @default(30)
+  keyConcepts     String[]            @default([])
+
+  // Video links (embedded in Mongo → Json)
+  videoLinksEnglish Json?
+  videoLinksTamil   Json?
+  videoLinksHindi   Json?
+
+  // Documentation (embedded in Mongo)
+  documentationContent  String?  @db.Text
+  codeExamples          Json?    // [{ title, code, language, explanation }]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  completedByUsers   UserCompletedLanguageTopic[]
+  studyPlanTopics    StudyPlanLanguageTopic[]
+
+  @@index([languageId, level, order])
+  @@index([slug])
+  @@map("language_topics")
+}
+
+// ============================================================================
+// 12. COMPANY
+// ============================================================================
+
+model Company {
+  id          String        @id @default(uuid())
+  name        String
+  slug        String        @unique
+  logo        String        @default("")
+  description String        @default("")
+  website     String        @default("")
+  industry    String        @default("")
+  size        CompanySize   @default(size_1_10)
+  status      CompanyStatus @default(pending)
+  verified    Boolean       @default(false)
+  plan        CompanyPlan   @default(free)
+
+  // Location (embedded in Mongo)
+  locationAddress  String?
+  locationCity     String?
+  locationState    String?
+  locationCountry  String?
+  locationZipCode  String?
+  locationRemote   Boolean  @default(false)
+
+  // Contact info (embedded in Mongo)
+  contactEmail  String?
+  contactPhone  String?
+  contactLinkedIn String?
+  contactTwitter  String?
+
+  // Admin
+  adminId       String
+  admin         User      @relation("CompanyAdmin", fields: [adminId], references: [id])
+
+  // Stats (embedded in Mongo)
+  statsTotalRecruiters Int  @default(0)
+  statsTotalJobsPosted Int  @default(0)
+  statsTotalApplications Int @default(0)
+  statsTotalHires      Int  @default(0)
+
+  // Settings (embedded in Mongo → Json)
+  settings   Json?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  recruiters  Recruiter[]
+
+  @@index([slug])
+  @@index([adminId])
+  @@map("companies")
+}
+
+// ============================================================================
+// 13. RECRUITER
+// ============================================================================
+
+model Recruiter {
+  id           String              @id @default(uuid())
+  userId       String              @unique
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId    String
+  company      Company             @relation(fields: [companyId], references: [id])
+  verified     Boolean             @default(false)
+  status       RecruiterStatus     @default(active)
+  subscription RecruiterSubscription @default(free)
+  subscriptionExpiresAt DateTime?
+
+  // Contact info (embedded in Mongo)
+  contactEmail  String?
+  contactPhone  String?
+  contactLinkedIn String?
+
+  // Jobs posted (array of ObjectIds in Mongo)
+  jobsPosted    Json?    // [ObjectId] — for tracking, actual relation is via JobPosting
+
+  // Stats (embedded in Mongo)
+  statsTotalJobsPosted   Int  @default(0)
+  statsTotalApplications Int  @default(0)
+  statsTotalHires        Int  @default(0)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  jobPostings  JobPosting[]
+
+  @@index([userId])
+  @@index([companyId])
+  @@map("recruiters")
+}
+
+// ============================================================================
+// 14. JOB POSTING
+// ============================================================================
+
+model JobPosting {
+  id           String    @id @default(uuid())
+  recruiterId  String
+  recruiter    Recruiter @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  title        String
+  company      String    // denormalized company name
+  description  String    @default("")  @db.Text
+  type         JobType   @default(full_time)
+  category     String    @default("software-engineering")  // software-engineering, data-science, devops, frontend, backend, fullstack, mobile, other
+  status       String    @default("draft")                  // draft, active, closed, filled
+  responsibilities String[] @default([])
+
+  // Location (embedded in Mongo)
+  locationCity    String?
+  locationState   String?
+  locationCountry String?
+  locationRemote  Boolean  @default(false)
+
+  // Salary (embedded in Mongo)
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String   @default("USD")
+  salaryPeriod    String   @default("yearly")  // hourly, monthly, yearly
+
+  // Requirements (embedded in Mongo → Json for complex arrays)
+  requirementsSkills         String[]  @default([])
+  requirementsExperience     String?
+  requirementsEducation      String?
+  requirementsCertifications String[]  @default([])
+
+  // Related roadmaps (array of ObjectIds in Mongo)
+  relatedRoadmaps  Json?    // [ObjectId] — array of Roadmap refs
+
+  // Hiring rounds config (embedded array in Mongo → Json)
+  rounds           Json?    // [{ name, type, duration, passingScore, evaluationCriteria, capacity }]
+  maxApplicants    Int      @default(0)     // 0 = unlimited
+  maxApplicantsPerRound Int @default(0)     // default capacity if not in round
+  emailConfig      Json?    // { triggers: [{ stage, template, subject, delay, active }] }
+  configuredSkills Json?    // [{ name, level, importance }]
+
+  // Stats (embedded in Mongo)
+  statsViews        Int    @default(0)
+  statsApplications Int    @default(0)
+  statsShortlisted  Int    @default(0)
+
+  deadline       DateTime?
+  postedAt       DateTime  @default(now())
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  applications  JobApplication[]
+
+  @@index([recruiterId])
+  @@index([status])
+  @@index([postedAt])
+  @@index([category])
+  @@map("job_postings")
+}
+
+// ============================================================================
+// 15. JOB APPLICATION
+// ============================================================================
+
+model JobApplication {
+  id          String              @id @default(uuid())
+  jobId       String
+  job         JobPosting          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   User                @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  status      JobApplicationStatus @default(submitted)
+
+  // Resume
+  resumeUrl        String?
+  resumeUploadedAt DateTime?
+  coverLetter      String?  @db.Text
+
+  // Custom answers (embedded array in Mongo → Json)
+  answers          Json?    // [{ question, answer }]
+
+  // Match scoring (embedded in Mongo → Json)
+  matchScore       Int?
+  skillAnalysis    Json?  // { breakdown: { skills, experience, certifications }, skillGaps[], recommendations[] }
+
+  // Round tracking (embedded object in Mongo → Json)
+  currentRound     Json?    // { roundIndex, status, scheduledAt, meetingLink }
+  roundHistory     Json?    // [{ roundIndex, name, score, feedback, completedAt, status, interviewer }]
+
+  // Timeline (embedded array in Mongo → Json)
+  timeline         Json?    // [{ status, date, note }]
+
+  // Notes
+  recruiterNotes   String?
+
+  appliedAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([jobId, applicantId])
+  @@index([jobId])
+  @@index([applicantId])
+  @@index([status])
+  @@index([matchScore])
+  @@map("job_applications")
+}
+
+// ============================================================================
+// 16. CONNECTION
+// ============================================================================
+
+model Connection {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation("ConnectionUser", fields: [userId], references: [id], onDelete: Cascade)
+  followerId String
+  follower   User             @relation("ConnectionFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  status     ConnectionStatus @default(pending)
+  type       ConnectionType   @default(follow)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, followerId])
+  @@index([userId])
+  @@index([followerId])
+  @@map("connections")
+}
+
+// ============================================================================
+// 17. MESSAGE
+// ============================================================================
+
+model Message {
+  id           String      @id @default(uuid())
+  senderId     String
+  sender       User        @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId  String
+  recipient    User        @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  content      String      @db.Text
+  type         MessageType @default(text)
+  read         Boolean     @default(false)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([senderId, recipientId])
+  @@index([recipientId, read])
+  @@map("messages")
+}
+
+// ============================================================================
+// 18. STUDY ROOM
+// ============================================================================
+
+model StudyRoom {
+  id            String    @id @default(uuid())
+  name          String
+  roomId        String    @unique  // human-readable room code
+  targetRole    String    @default("All")
+  creatorId     String
+  creator       User      @relation(fields: [creatorId], references: [id])
+  topicId       String?
+  topic         Topic?    @relation(fields: [topicId], references: [id])
+  roadmapId     String?
+  roadmap       Roadmap?  @relation(fields: [roadmapId], references: [id])
+  description   String    @default("")
+  isPublic      Boolean   @default(true)
+  maxMembers    Int       @default(10)
+  status        String    @default("active")  // active, ended, scheduled
+  scheduledFor  DateTime?
+
+  // Complex embedded data → Json
+  whiteboardData  Json?
+  messages        Json?    // [{ user, content, timestamp }]
+
+  // Stats (embedded in Mongo)
+  statsTotalMessages Int   @default(0)
+  statsTotalDuration Int   @default(0)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  members  StudyRoomMember[]
+
+  @@index([roomId])
+  @@index([creatorId])
+  @@map("study_rooms")
+}
+
+// Study room members (was embedded array in Mongo)
+model StudyRoomMember {
+  id          String    @id @default(uuid())
+  studyRoomId String
+  studyRoom   StudyRoom @relation(fields: [studyRoomId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String    @default("member")  // owner, moderator, member
+  joinedAt    DateTime  @default(now())
+
+  @@unique([studyRoomId, userId])
+  @@map("study_room_members")
+}
+
+// ============================================================================
+// 19. COMMUNITY POST
+// ============================================================================
+
+model CommunityPost {
+  id          String    @id @default(uuid())
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title       String
+  content     String    @db.Text
+  category    String    @default("discussion")  // question, discussion, resource, achievement, other
+  tags        String[]  @default([])
+  relatedRoadmapId String?
+  relatedTopicId   String?
+  views       Int       @default(0)
+  isPinned    Boolean   @default(false)
+  isLocked    Boolean   @default(false)
+  isSolved    Boolean   @default(false)
+  bestAnswerId String?
+  lastActivityAt DateTime @default(now())
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  comments    CommunityComment[]
+  upvotes     PostUpvote[]
+  downvotes   PostDownvote[]
+
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+  @@map("community_posts")
+}
+
+// Community comments (was embedded array in Mongo → separate table)
+model CommunityComment {
+  id        String        @id @default(uuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String        @db.Text
+  isEdited  Boolean       @default(false)
+
+  // Upvotes (was array of ObjectIds in Mongo → join table)
+  upvotes   CommentUpvote[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+
+  @@index([postId])
+  @@map("community_comments")
+}
+
+// Comment upvotes (was array of ObjectIds in Mongo → join table)
+model CommentUpvote {
+  id        String           @id @default(uuid())
+  commentId String
+  comment   CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@unique([commentId, userId])
+  @@map("comment_upvotes")
+}
+
+// Post upvotes (was array of ObjectIds in Mongo → join table)
+model PostUpvote {
+  id      String        @id @default(uuid())
+  postId  String
+  post    CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_upvotes")
+}
+
+// Post downvotes (was array of ObjectIds in Mongo → join table)
+model PostDownvote {
+  id      String        @id @default(uuid())
+  postId  String
+  post    CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_downvotes")
+}
+
+// ============================================================================
+// 20. MENTOR PROFILE
+// ============================================================================
+
+model MentorProfile {
+  id           String       @id @default(uuid())
+  userId       String       @unique
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio          String       @default("")
+  skills       String[]     @default([])
+  ratePerHour  Float?
+  status       MentorStatus @default(pending)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  sessions  MentoringSession[]
+
+  @@map("mentor_profiles")
+}
+
+// ============================================================================
+// 21. MENTORING SESSION
+// ============================================================================
+
+model MentoringSession {
+  id            String                  @id @default(uuid())
+  mentorId      String
+  mentor        MentorProfile           @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  menteeId      String
+  mentee        User                    @relation("MenteeSessions", fields: [menteeId], references: [id], onDelete: Cascade)
+  status        MentoringSessionStatus  @default(pending)
+  scheduledAt   DateTime?
+  duration      Int?                    // minutes
+  message       String                  @default("")
+  topics        String[]                @default([])
+  meetingLink   String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([mentorId])
+  @@index([menteeId])
+  @@map("mentoring_sessions")
+}
+
+// ============================================================================
+// 22. COHORT
+// ============================================================================
+
+model Cohort {
+  id        String    @id @default(uuid())
+  name      String
+  mentorId  String
+  mentor    User      @relation("CohortMentor", fields: [mentorId], references: [id])
+  capacity  Int       @default(20)
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  members  CohortMember[]
+
+  @@map("cohorts")
+}
+
+// Cohort members (was array of ObjectIds in Mongo → join table)
+model CohortMember {
+  id        String  @id @default(uuid())
+  cohortId  String
+  cohort    Cohort  @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([cohortId, userId])
+  @@map("cohort_members")
+}
+
+// ============================================================================
+// 23. HACKATHON
+// ============================================================================
+
+model Hackathon {
+  id              String          @id @default(uuid())
+  title           String
+  description     String          @default("")  @db.Text
+  organizerId     String
+  organizer       User            @relation("HackathonOrganizer", fields: [organizerId], references: [id])
+  startDate       DateTime?
+  endDate         DateTime?
+  theme           String          @default("")
+  status          HackathonStatus @default(upcoming)
+  maxParticipants Int?
+
+  // Prizes (embedded array in Mongo → Json)
+  prizes          Json?    // [{ rank, prize, amount }]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  participants  HackathonParticipant[]
+  submissions   HackathonSubmission[]
+
+  @@index([status])
+  @@index([startDate])
+  @@map("hackathons")
+}
+
+// Hackathon participants (was embedded array in Mongo)
+model HackathonParticipant {
+  id           String    @id @default(uuid())
+  hackathonId  String
+  hackathon    Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team         String?   // team name
+  registeredAt DateTime  @default(now())
+
+  @@unique([hackathonId, userId])
+  @@map("hackathon_participants")
+}
+
+// Hackathon submissions (was embedded array in Mongo)
+model HackathonSubmission {
+  id           String    @id @default(uuid())
+  hackathonId  String
+  hackathon    Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  team         String?   // was 'teamName' in previous version
+  members      Json?     // [ObjectId] — array of User refs in Mongoose
+  projectTitle String?   @default("")
+  description  String    @default("")
+  githubUrl    String?
+  liveUrl      String?
+  score        Float?
+  submittedAt  DateTime  @default(now())
+
+  @@map("hackathon_submissions")
+}
+
+// ============================================================================
+// 24. CHALLENGE
+// ============================================================================
+
+model Challenge {
+  id           String        @id @default(uuid())
+  title        String
+  description  String        @default("")
+  type         ChallengeType @default(daily)
+
+  // Criteria (embedded in Mongo)
+  criteriaAction    String?    // e.g., "complete-topics", "study-minutes", "test-score", "streak", "ai-chat", "help-peers"
+  criteriaTarget    Int        @default(1)
+  criteriaTimeframe String?    // e.g., "daily", "weekly"
+
+  // Rewards (embedded in Mongo)
+  rewardsXp       Int        @default(0)
+  rewardsPoints   Int        @default(0)
+  rewardsBadge    String?    // badge name (NOT a FK — Mongoose stores plain string)
+  rewardsPowerup  String?
+
+  startDate    DateTime?
+  endDate      DateTime?
+  recurring    Boolean       @default(false)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  activeUsers  ChallengeParticipant[]
+
+  @@index([type, startDate])
+  @@map("challenges")
+}
+
+// Challenge active users (was embedded array in Mongo)
+model ChallengeParticipant {
+  id           String    @id @default(uuid())
+  challengeId  String
+  challenge    Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  progress     Int       @default(0)
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  joinedAt     DateTime  @default(now())
+
+  @@unique([challengeId, userId])
+  @@map("challenge_participants")
+}
+
+// ============================================================================
+// 25. LEADERBOARD
+// ============================================================================
+
+model Leaderboard {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String   @default("")
+  profileImage String   @default("")
+  targetRole   String   @default("Explorer")
+  overallScore Float    @default(0)
+  xp           Int      @default(0)
+  level        Int      @default(1)
+
+  // Badges (was embedded array in Mongo → Json)
+  badges       Json?    // [{ name, icon, description, unlockedAt }]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([xp(sort: Desc)])
+  @@index([overallScore(sort: Desc)])
+  @@map("leaderboard")
+}
+
+// ============================================================================
+// 26. LEETCODE SUBMISSION
+// ============================================================================
+
+model LeetCodeSubmission {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId   String
+  problemTitle String
+  problemSlug  String?
+  difficulty  LeetCodeDifficulty
+  status      LeetCodeStatus
+  language    String           @default("")
+  runtime     String?
+  memory      String?
+  submittedAt DateTime         @default(now())
+
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, submittedAt])
+  @@index([userId, difficulty])
+  @@map("leetcode_submissions")
+}
+
+// ============================================================================
+// 27. SKILL BADGE
+// ============================================================================
+
+model SkillBadge {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @default("")
+  icon        String   @default("🏅")
+  criteria    String   @default("")
+  category    String?
+  isActive    Boolean  @default(true)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  userBadges          UserBadge[]
+  projectSubmissions  ProjectSubmission[]
+
+  @@map("skill_badges")
+}
+
+// ============================================================================
+// 28. PROJECT SUBMISSION
+// ============================================================================
+
+model ProjectSubmission {
+  id             String                  @id @default(uuid())
+  userId         String
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmapId      String?
+  roadmap        Roadmap?                @relation(fields: [roadmapId], references: [id])
+  title          String
+  description    String                  @default("")
+  repoUrl        String                  @default("")
+  demoUrl        String                  @default("")
+  status         ProjectSubmissionStatus @default(submitted)
+  reviewerNotes  String                  @default("")
+  reviewedById   String?
+  reviewedAt     DateTime?
+  awardedBadgeId String?
+  awardedBadge   SkillBadge?             @relation(fields: [awardedBadgeId], references: [id])
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  peerReviews  PeerReview[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("project_submissions")
+}
+
+// ============================================================================
+// 29. PEER REVIEW
+// ============================================================================
+
+model PeerReview {
+  id            String            @id @default(uuid())
+  submissionId  String
+  submission    ProjectSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewerId    String
+  reviewer      User              @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  rating        Int               @default(5)  // 1-5
+  feedback      String            @default("")
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([submissionId])
+  @@map("peer_reviews")
+}
+
+// ============================================================================
+// 30. TIME TRACKING SESSION
+// ============================================================================
+
+model TimeTrackingSession {
+  id            String                  @id @default(uuid())
+  userId        String
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentType   TimeTrackingContentType
+  topicId       String?
+  topic         Topic?                  @relation(fields: [topicId], references: [id])
+  roadmapId     String?
+  roadmap       Roadmap?                @relation(fields: [roadmapId], references: [id])
+  languageId    String?
+  language      ProgrammingLanguage?    @relation(fields: [languageId], references: [id])
+  languageTopicId String?               // for contentType=language-topic (Mongoose uses refPath on topic)
+
+  startTime     DateTime                @default(now())
+  endTime       DateTime?
+  duration      Int                     @default(0)  // minutes
+  totalPauseTime Int                    @default(0)  // seconds
+  status        TimeTrackingStatus      @default(active)
+  activityType  TimeTrackingActivity    @default(watching_video)
+  completed     Boolean                 @default(false)
+  notes         String?
+
+  // Pauses (was embedded array in Mongo → Json)
+  pauses        Json?    // [{ pausedAt, resumedAt, reason }]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([userId, topicId])
+  @@index([startTime])
+  @@map("time_tracking_sessions")
+}
+
+// ============================================================================
+// 31. AUDIT LOG
+// ============================================================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String?
+  actor       User?    @relation(fields: [actorId], references: [id])
+  action      String
+  entityType  String
+  entityId    String   @default("")
+  metadata    Json?
+  ip          String   @default("")
+  userAgent   String   @default("")
+
+  createdAt  DateTime  @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

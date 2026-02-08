@@ -1,0 +1,504 @@
+# BINARY TREE – CORE CONCEPT
+
+## 🔹 What is a Binary Tree?
+
+A Binary Tree is a hierarchical data structure where:
+
+- Each node has at most two children
+- Left Child
+- Right Child
+
+## 🔹 Node Structure
+
+```
+   [ Data ]
+   /     \
+ Left   Right
+```
+
+## 🔹 Why Trees?
+
+- Represent hierarchical data
+- Faster searching and sorting
+- Used in databases, file systems, compilers
+
+---
+
+# 🌲 BINARY SEARCH TREE (BST)
+
+## 🔹 What is a BST?
+
+A Binary Search Tree is a Binary Tree with ordering rules:
+
+- Left subtree → values smaller than root
+- Right subtree → values greater than root
+
+This makes searching efficient.
+
+## 🔹 Example BST
+
+Insert: 50, 30, 70, 20, 40, 60, 80
+
+```
+        50
+       /  \
+     30    70
+    / \    / \
+  20  40  60  80
+```
+
+## 🔹 BST Time Complexity
+
+<div className="my-6">
+  <table>
+    <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th >Time</th>
+            </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12">Insert</td>
+                <td>O(log n) average</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Search</td>
+                <td>O(log n) average</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Traversals</td>
+                <td>O(n)</td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+---
+
+# 🔁 TREE TRAVERSALS
+
+## 🔹 Traversal Applications
+
+<div className="my-6">
+    <table>
+        <thead>
+            <tr>
+                <th className="pr-12">Traversal</th>
+                <th className="pr-12">Order</th>
+                <th>Common Application</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td className="pr-12">Inorder</td>
+                <td className="pr-12">Left → Root → Right</td>
+                <td>Sorted output in BST</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Preorder</td>
+                <td className="pr-12">Root → Left → Right</td>
+                <td>Copy/serialize tree structure</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Postorder</td>
+                <td className="pr-12">Left → Right → Root</td>
+                <td>Delete/free tree safely</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+## 1) Inorder (L → Root → R)
+
+Left → Root → Right
+
+Output for BST → Sorted Order
+
+Example: 20 30 40 50 60 70 80
+
+## 2) Preorder (Root → L → R)
+
+Root → Left → Right
+
+Used to copy tree
+
+Example: 50 30 20 40 70 60 80
+
+## 3) Postorder (L → R → Root)
+
+Left → Right → Root
+
+Used to delete tree
+
+Example: 20 40 30 60 80 70 50
+
+---
+
+# 💻 BST CREATION + TRAVERSALS – CODE
+
+Below:
+
+✔ Create BST
+
+✔ Insert nodes
+
+✔ Inorder, Preorder, Postorder
+
+### 🐍 Python
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.left = self.right = None
+
+def insert(root, key):
+    if not root: return Node(key)
+    if key < root.data:
+        root.left = insert(root.left, key)
+    else:
+        root.right = insert(root.right, key)
+    return root
+
+def inorder(root):
+    if root:
+        inorder(root.left)
+        print(root.data, end=" ")
+        inorder(root.right)
+
+def preorder(root):
+    if root:
+        print(root.data, end=" ")
+        preorder(root.left)
+        preorder(root.right)
+
+def postorder(root):
+    if root:
+        postorder(root.left)
+        postorder(root.right)
+        print(root.data, end=" ")
+
+# Demo
+root = None
+for x in [50,30,70,20,40,60,80]:
+    root = insert(root, x)
+
+inorder(root); print()
+preorder(root); print()
+postorder(root)
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node *left,*right;
+};
+
+struct Node* newNode(int x){
+    struct Node* n = (struct Node*)malloc(sizeof(struct Node));
+    n->data = x;
+    n->left = n->right = NULL;
+    return n;
+}
+
+struct Node* insert(struct Node* root,int x){
+    if(root == NULL) return newNode(x);
+    if(x < root->data)
+        root->left = insert(root->left,x);
+    else
+        root->right = insert(root->right,x);
+    return root;
+}
+
+void inorder(struct Node* root){
+    if(root){
+        inorder(root->left);
+        printf("%d ",root->data);
+        inorder(root->right);
+    }
+}
+
+void preorder(struct Node* root){
+    if(root){
+        printf("%d ",root->data);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+void postorder(struct Node* root){
+    if(root){
+        postorder(root->left);
+        postorder(root->right);
+        printf("%d ",root->data);
+    }
+}
+
+int main(){
+    struct Node* root = NULL;
+    int arr[] = {50,30,70,20,40,60,80};
+    for(int i=0;i<7;i++)
+        root = insert(root,arr[i]);
+
+    inorder(root); printf("\n");
+    preorder(root); printf("\n");
+    postorder(root);
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node *left,*right;
+    Node(int x){
+        data=x; left=right=NULL;
+    }
+};
+
+Node* insert(Node* root,int x){
+    if(!root) return new Node(x);
+    if(x < root->data)
+        root->left = insert(root->left,x);
+    else
+        root->right = insert(root->right,x);
+    return root;
+}
+
+void inorder(Node* root){
+    if(root){
+        inorder(root->left);
+        cout<<root->data<<" ";
+        inorder(root->right);
+    }
+}
+
+void preorder(Node* root){
+    if(root){
+        cout<<root->data<<" ";
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+void postorder(Node* root){
+    if(root){
+        postorder(root->left);
+        postorder(root->right);
+        cout<<root->data<<" ";
+    }
+}
+
+int main(){
+    Node* root=NULL;
+    int arr[]={50,30,70,20,40,60,80};
+    for(int x:arr)
+        root=insert(root,x);
+
+    inorder(root); cout<<endl;
+    preorder(root); cout<<endl;
+    postorder(root);
+}
+```
+
+### ☕ Java
+
+```java
+class Node {
+    int data;
+    Node left,right;
+    Node(int x){ data=x; }
+}
+
+class BST {
+    Node insert(Node root,int x){
+        if(root==null) return new Node(x);
+        if(x < root.data)
+            root.left = insert(root.left,x);
+        else
+            root.right = insert(root.right,x);
+        return root;
+    }
+
+    void inorder(Node root){
+        if(root!=null){
+            inorder(root.left);
+            System.out.print(root.data+" ");
+            inorder(root.right);
+        }
+    }
+
+    void preorder(Node root){
+        if(root!=null){
+            System.out.print(root.data+" ");
+            preorder(root.left);
+            preorder(root.right);
+        }
+    }
+
+    void postorder(Node root){
+        if(root!=null){
+            postorder(root.left);
+            postorder(root.right);
+            System.out.print(root.data+" ");
+        }
+    }
+
+    public static void main(String[] args){
+        BST b = new BST();
+        Node root=null;
+        int arr[]={50,30,70,20,40,60,80};
+        for(int x:arr)
+            root=b.insert(root,x);
+
+        b.inorder(root); System.out.println();
+        b.preorder(root); System.out.println();
+        b.postorder(root);
+    }
+}
+```
+
+---
+
+# 🎯 Interview One-Liners
+
+**Binary Tree:** A hierarchical structure where each node has at most two children.
+
+**Binary Search Tree:** A binary tree where left subtree values are smaller and right subtree values are greater than the root.
+
+**Inorder:** Left → Root → Right (gives sorted order in BST)
+
+**Preorder:** Root → Left → Right
+
+**Postorder:** Left → Right → Root# Binary Tree Traversal
+
+Binary trees can be traversed in different ways, with each traversal method visiting nodes in a specific order.
+
+## Pre-Order Traversal
+
+In pre-order traversal we visit the node then go to the `left subtree` then `right subtree`.
+
+```c:preorder.c
+/*
+ * Time: O(n)
+ * Space: O(1)
+ */
+
+typedef struct Node {
+    int value;
+    struct Node* left;
+    struct Node* right;
+} Node;
+
+// Method implementation
+void preOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+
+    printf("%d ", root->value);        // Visit node
+    preOrderTraversal(root->left);     // Left subtree
+    preOrderTraversal(root->right);    // Right subtree
+}
+```
+
+## In-Order Traversal
+
+In in-order traversal, we first visit the left node, then parent, then right node.
+
+```c:inorder.c
+/*
+ * Time: O(n)
+ * Space: O(1)
+ */
+
+void inOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+
+    inOrderTraversal(root->left);      // Left subtree
+    printf("%d ", root->value);        // Visit node
+    inOrderTraversal(root->right);     // Right subtree
+}
+```
+
+## Post-Order Traversal
+
+Post-order traversal visits the left subtree, then right subtree, then the node.
+
+```c:postorder.c
+/*
+ * Time: O(n)
+ * Space: O(1)
+ */
+
+void postOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+
+    postOrderTraversal(root->left);    // Left subtree
+    postOrderTraversal(root->right);   // Right subtree
+    printf("%d ", root->value);        // Visit node
+}
+```
+
+## Traversal Applications
+
+<div className="my-6">
+    <table>
+        <thead>
+            <tr>
+                <th className="pr-12">Traversal</th>
+                <th>Use Cases</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td className="pr-12">Pre-order</td>
+                <td>Creating a copy of the tree, Serialization</td>
+            </tr>
+            <tr>
+                <td className="pr-12">In-order</td>
+                <td>Gets nodes in non-decreasing order in BST</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Post-order</td>
+                <td>Deleting nodes, Computing directory size</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+## Key Points
+
+- **Pre-order**: Root → Left → Right
+  - Used for creating prefix expression trees
+  - Helpful in serialization
+
+- **In-order**: Left → Root → Right
+  - Gives sorted sequence for BST
+  - Most natural way to "read" a tree
+
+- **Post-order**: Left → Right → Root
+  - Used in expression evaluation
+  - Bottom-up tree processing
+
+## Implementation Notes
+
+- Uses recursive approach for simplicity
+- Each node contains:
+  - `value`: The data stored in the node
+  - `left`: Pointer to left child
+  - `right`: Pointer to right child
+- NULL checks prevent segmentation faults
+- Can be implemented iteratively using a stack

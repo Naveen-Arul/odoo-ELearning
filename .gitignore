@@ -1,0 +1,85 @@
+# =====================================================
+# SkillForge AI - Git Ignore
+# =====================================================
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Environment files (IMPORTANT - contains secrets!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+
+# Build outputs
+/build
+/dist
+frontend/build/
+.next/
+
+# Testing
+/coverage
+*.lcov
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Optional npm cache
+.npm/
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Yarn
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+
+# MongoDB data (if running locally)
+data/db/
+
+# Uploaded files (if any)
+uploads/
+*.uploaded
+
+# Secrets (never commit these!)
+*.pem
+*.key
+secrets/

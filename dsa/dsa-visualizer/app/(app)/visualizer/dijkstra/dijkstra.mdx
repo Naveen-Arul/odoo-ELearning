@@ -1,0 +1,243 @@
+# DIJKSTRA’S ALGORITHM – COMPLETE CONTENT
+
+## 🔹 What is Dijkstra’s Algorithm?
+
+Dijkstra’s Algorithm is a greedy graph algorithm used to find the:
+
+- Shortest path from a single source to all other vertices
+
+in a weighted graph with non-negative edge weights.
+
+## 🔹 Key Idea
+
+At each step:
+
+- Choose the unvisited vertex with the smallest tentative distance
+- Relax its adjacent edges
+- Repeat until all vertices are finalized
+
+## 🔹 Graph Requirement
+
+✔ Works for directed or undirected graphs
+
+❌ Does not work with negative edge weights
+
+## 🔹 Basic Terminology
+
+- Source (S) → Starting vertex
+- Distance array → Stores shortest distance from S to every vertex
+- Visited set → Vertices whose shortest path is finalized
+- Priority Queue (Min Heap) → Picks minimum distance vertex efficiently
+
+---
+
+## ⚙️ ALGORITHM STEPS
+
+1. Initialize distance of all vertices as ∞
+2. Set distance of source = 0
+3. Insert source into Min Heap
+4. While heap not empty:
+   - Extract vertex with minimum distance
+   - Mark as visited
+   - For each neighbor:
+     - If new shorter path found → update distance
+     - Push updated vertex into heap
+
+## 🧮 RELAXATION FORMULA
+
+```
+if dist[u] + weight(u,v) < dist[v]:
+    dist[v] = dist[u] + weight(u,v)
+```
+
+## ⏱️ TIME COMPLEXITY
+
+<div className="my-6">
+  <table>
+    <thead>
+      <tr>
+        <th className="pr-12">Implementation</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td className="pr-12">Using Array</td>
+        <td>O(V²)</td>
+      </tr>
+      <tr>
+        <td className="pr-12">Using Min Heap</td>
+        <td>O((V + E) log V)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## 🌐 EXAMPLE GRAPH
+
+```
+      (2)
+  A ------- B
+  | \       |
+ (1) (4)   (3)
+  |     \   |
+  C ------- D
+       (1)
+```
+
+Shortest paths from A:
+
+`A → C → D → B`
+
+---
+
+## 🎯 APPLICATIONS
+
+- GPS Navigation
+- Network routing
+- Flight price systems
+- Game pathfinding
+
+## 🎯 INTERVIEW ONE-LINER
+
+"Dijkstra’s Algorithm is a greedy method that finds the shortest paths from a source to all vertices in a weighted graph with non-negative edge weights."
+
+---
+
+## 💻 DIJKSTRA CODE IMPLEMENTATION
+
+### 🐍 Python (Min Heap)
+
+```python
+import heapq
+
+def dijkstra(graph, src):
+    pq = [(0, src)]
+    dist = {v: float('inf') for v in graph}
+    dist[src] = 0
+
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist[u]: continue
+
+        for v, w in graph[u]:
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                heapq.heappush(pq, (dist[v], v))
+
+    return dist
+
+# Graph
+graph = {
+ 'A':[('B',2),('C',1)],
+ 'B':[('A',2),('D',3)],
+ 'C':[('A',1),('D',1)],
+ 'D':[('B',3),('C',1)]
+}
+
+print(dijkstra(graph,'A'))
+```
+
+### 💻 C (Adjacency Matrix)
+
+```c
+#include <stdio.h>
+#define V 5
+#define INF 9999
+
+int minDist(int dist[], int visited[]){
+    int min=INF, idx=-1;
+    for(int i=0;i<V;i++)
+        if(!visited[i] && dist[i]<=min)
+            min=dist[i], idx=i;
+    return idx;
+}
+
+void dijkstra(int graph[V][V], int src){
+    int dist[V], visited[V]={0};
+
+    for(int i=0;i<V;i++) dist[i]=INF;
+    dist[src]=0;
+
+    for(int i=0;i<V-1;i++){
+        int u=minDist(dist,visited);
+        visited[u]=1;
+        for(int v=0; v<V; v++){
+            if(!visited[v] && graph[u][v] &&
+               dist[u]+graph[u][v] < dist[v])
+                dist[v]=dist[u]+graph[u][v];
+        }
+    }
+
+    for(int i=0;i<V;i++)
+        printf("%d ",dist[i]);
+}
+```
+
+### ⚙️ C++ (Min Heap)
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+void dijkstra(int src, vector<pair<int,int>> adj[], int V){
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<>> pq;
+    vector<int> dist(V,1e9);
+
+    dist[src]=0;
+    pq.push({0,src});
+
+    while(!pq.empty()){
+        auto [d,u]=pq.top(); pq.pop();
+        if(d>dist[u]) continue;
+
+        for(auto [v,w]:adj[u]){
+            if(dist[u]+w < dist[v]){
+                dist[v]=dist[u]+w;
+                pq.push({dist[v],v});
+            }
+        }
+    }
+
+    for(int i=0;i<V;i++)
+        cout<<dist[i]<<" ";
+}
+```
+
+### ☕ Java (Min Heap)
+
+```java
+import java.util.*;
+
+class Dijkstra {
+    static class Pair {
+        int v,w;
+        Pair(int v,int w){this.v=v;this.w=w;}
+    }
+
+    void shortestPath(List<List<Pair>> adj, int V, int src){
+        int[] dist = new int[V];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[src]=0;
+
+        PriorityQueue<Pair> pq =
+          new PriorityQueue<>(Comparator.comparingInt(a->a.w));
+        pq.add(new Pair(src,0));
+
+        while(!pq.isEmpty()){
+            Pair p=pq.poll();
+            int u=p.v;
+
+            for(Pair nbr: adj.get(u)){
+                int v=nbr.v, w=nbr.w;
+                if(dist[u]+w < dist[v]){
+                    dist[v]=dist[u]+w;
+                    pq.add(new Pair(v,dist[v]));
+                }
+            }
+        }
+
+        System.out.println(Arrays.toString(dist));
+    }
+}
+```

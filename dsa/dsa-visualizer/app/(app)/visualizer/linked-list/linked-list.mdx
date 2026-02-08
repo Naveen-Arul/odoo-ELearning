@@ -1,0 +1,1236 @@
+# LINKED LIST
+
+## 🔹 What is a Linked List?
+
+A Linked List is a dynamic linear data structure where:
+
+- Each element is stored in a node
+- Each node contains data and a pointer to the next node
+- Memory is not stored contiguously
+- Size can grow or shrink at runtime
+
+## 🔹 Node Structure
+
+`[ Data | Next ]`
+
+## 🔹 Why Linked List?
+
+- Easy insertion and deletion
+- No fixed size limit
+- Efficient memory usage
+
+## 💻 Singly Linked List – Working Code
+
+### 🐍 Python
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, data):
+        new = Node(data)
+        if not self.head:
+            self.head = new
+            return
+        t = self.head
+        while t.next:
+            t = t.next
+        t.next = new
+
+    def display(self):
+        t = self.head
+        while t:
+            print(t.data, end=" -> ")
+            t = t.next
+        print("NULL")
+
+# Demo
+ll = LinkedList()
+ll.insert_end(10)
+ll.insert_end(20)
+ll.display()
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+void insert_end(int x) {
+    struct Node* new = (struct Node*)malloc(sizeof(struct Node));
+    new->data = x;
+    new->next = NULL;
+    if(head == NULL) {
+        head = new;
+        return;
+    }
+    struct Node* t = head;
+    while(t->next)
+        t = t->next;
+    t->next = new;
+}
+
+void display() {
+    struct Node* t = head;
+    while(t) {
+        printf("%d -> ", t->data);
+        t = t->next;
+    }
+    printf("NULL");
+}
+
+int main() {
+    insert_end(10);
+    insert_end(20);
+    display();
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+};
+
+class LinkedList {
+    Node* head = NULL;
+
+public:
+    void insert_end(int x) {
+        Node* newNode = new Node();
+        newNode->data = x;
+        newNode->next = NULL;
+        if(head == NULL) {
+            head = newNode;
+            return;
+        }
+        Node* t = head;
+        while(t->next)
+            t = t->next;
+        t->next = newNode;
+    }
+
+    void display() {
+        Node* t = head;
+        while(t) {
+            cout << t->data << " -> ";
+            t = t->next;
+        }
+        cout << "NULL";
+    }
+};
+
+int main() {
+    LinkedList ll;
+    ll.insert_end(10);
+    ll.insert_end(20);
+    ll.display();
+}
+```
+
+### ☕ Java
+
+```java
+class Node {
+    int data;
+    Node next;
+    Node(int x) { data = x; }
+}
+
+class LinkedList {
+    Node head;
+
+    void insertEnd(int x) {
+        Node newNode = new Node(x);
+        if(head == null) {
+            head = newNode;
+            return;
+        }
+        Node t = head;
+        while(t.next != null)
+            t = t.next;
+        t.next = newNode;
+    }
+
+    void display() {
+        Node t = head;
+        while(t != null) {
+            System.out.print(t.data + " -> ");
+            t = t.next;
+        }
+        System.out.print("NULL");
+    }
+
+    public static void main(String[] args) {
+        LinkedList ll = new LinkedList();
+        ll.insertEnd(10);
+        ll.insertEnd(20);
+        ll.display();
+    }
+}
+```
+
+---
+
+# DOUBLY LINKED LIST (DLL)
+
+## 🔹 What is a Doubly Linked List?
+
+A Doubly Linked List is a linear dynamic data structure where:
+
+- Each node contains data
+- A pointer to the next node
+- A pointer to the previous node
+
+This allows two-way traversal.
+
+## 🔹 Node Structure
+
+`[ Prev | Data | Next ]`
+
+## 🔹 Structure Example
+
+`NULL ← [Prev|10|Next] ↔ [Prev|20|Next] ↔ [Prev|30|Next] → NULL`
+
+## 🔹 Core Operations
+
+<div className="my-6">
+  <table>
+    <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th>Description</th>
+                <th>Time</th>
+            </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12">Insert at beginning</td>
+                <td className="pr-12">Add node at head</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Insert at end</td>
+                <td className="pr-12"> Add node at tail</td>
+                <td>O(n)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Delete from beginning</td>
+                <td className="pr-12">Remove head</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Delete from end</td>
+                <td className="pr-12">Remove tail</td>
+                <td>O(n)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Forward traversal</td>
+                <td className="pr-12">Head → Tail</td>
+                <td>O(n)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Backward traversal</td>
+                <td className="pr-12">Tail → Head</td>
+                <td>O(n)</td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+(*O(1) if tail pointer is maintained)
+
+## 🔹 Advantages
+
+- Can traverse both forward and backward
+- Deletion is easier (previous node known)
+- Useful for navigation systems
+
+## 🔹 Disadvantage
+
+- Extra memory for prev pointer
+
+## 🔹 Common Uses
+
+- Browser back / forward
+- Undo / Redo
+- Music playlist
+
+## 💻 DLL – Working Code
+
+### 🐍 Python
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.prev = None
+        self.next = None
+
+class DLL:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, data):
+        new = Node(data)
+        if not self.head:
+            self.head = new
+            return
+        t = self.head
+        while t.next:
+            t = t.next
+        t.next = new
+        new.prev = t
+
+    def display_forward(self):
+        t = self.head
+        while t:
+            print(t.data, end=" <-> ")
+            t = t.next
+        print("NULL")
+
+# Demo
+dll = DLL()
+dll.insert_end(10)
+dll.insert_end(20)
+dll.insert_end(30)
+dll.display_forward()
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node *prev, *next;
+};
+
+struct Node *head = NULL;
+
+void insert_end(int x) {
+    struct Node* new = (struct Node*)malloc(sizeof(struct Node));
+    new->data = x;
+    new->prev = NULL;
+    new->next = NULL;
+
+    if(head == NULL) {
+        head = new;
+        return;
+    }
+
+    struct Node* t = head;
+    while(t->next)
+        t = t->next;
+
+    t->next = new;
+    new->prev = t;
+}
+
+void display() {
+    struct Node* t = head;
+    while(t) {
+        printf("%d <-> ", t->data);
+        t = t->next;
+    }
+    printf("NULL");
+}
+
+int main() {
+    insert_end(10);
+    insert_end(20);
+    insert_end(30);
+    display();
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node *prev, *next;
+};
+
+class DLL {
+    Node* head = NULL;
+
+public:
+    void insert_end(int x) {
+        Node* newNode = new Node();
+        newNode->data = x;
+        newNode->prev = newNode->next = NULL;
+
+        if(head == NULL) {
+            head = newNode;
+            return;
+        }
+
+        Node* t = head;
+        while(t->next)
+            t = t->next;
+
+        t->next = newNode;
+        newNode->prev = t;
+    }
+
+    void display() {
+        Node* t = head;
+        while(t) {
+            cout << t->data << " <-> ";
+            t = t->next;
+        }
+        cout << "NULL";
+    }
+};
+
+int main() {
+    DLL d;
+    d.insert_end(10);
+    d.insert_end(20);
+    d.insert_end(30);
+    d.display();
+}
+```
+
+### ☕ Java
+
+```java
+class Node {
+    int data;
+    Node prev, next;
+    Node(int x) { data = x; }
+}
+
+class DLL {
+    Node head;
+
+    void insertEnd(int x) {
+        Node newNode = new Node(x);
+        if(head == null) {
+            head = newNode;
+            return;
+        }
+        Node t = head;
+        while(t.next != null)
+            t = t.next;
+
+        t.next = newNode;
+        newNode.prev = t;
+    }
+
+    void display() {
+        Node t = head;
+        while(t != null) {
+            System.out.print(t.data + " <-> ");
+            t = t.next;
+        }
+        System.out.print("NULL");
+    }
+
+    public static void main(String[] args) {
+        DLL d = new DLL();
+        d.insertEnd(10);
+        d.insertEnd(20);
+        d.insertEnd(30);
+        d.display();
+    }
+}
+```
+
+---
+
+# CIRCULAR SINGLY LINKED LIST (CSLL)
+
+## 🔹 What is a CSLL?
+
+A Circular Singly Linked List is a linked list where:
+
+- Each node has data and next pointer
+- The last node points back to the first node
+- There is no NULL at the end
+
+This forms a circle.
+
+## 🔹 Node Structure
+
+`[ Data | Next ]`
+
+## 🔹 Structure Example
+
+```
+[10|•] → [20|•] → [30|•]
+   ↑_________________↓
+```
+
+## 🔹 Core Operations
+
+<div className="my-6">
+  <table>
+    <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th>Description</th>
+                <th>Time</th>
+            </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12">Insert at beginning</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Insert at end</td>
+                <td></td>
+                <td>O(n)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Delete from beginning</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Traversal</td>
+                <td></td>
+                <td>O(n)</td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+## 🔹 Key Features
+
+- Last node links to first
+- Continuous traversal possible
+- No NULL pointer
+- Efficient for cyclic processes
+
+## 🔹 Common Uses
+
+- Round-robin CPU scheduling
+- Multiplayer turn systems
+- Circular buffers
+
+## 💻 CSLL – Working Code
+
+### 🐍 Python
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class CSLL:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, data):
+        new = Node(data)
+        if not self.head:
+            self.head = new
+            new.next = new
+            return
+        t = self.head
+        while t.next != self.head:
+            t = t.next
+        t.next = new
+        new.next = self.head
+
+    def display(self):
+        if not self.head: return
+        t = self.head
+        while True:
+            print(t.data, end=" -> ")
+            t = t.next
+            if t == self.head:
+                break
+        print("(HEAD)")
+
+# Demo
+c = CSLL()
+c.insert_end(10)
+c.insert_end(20)
+c.insert_end(30)
+c.display()
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+void insert_end(int x) {
+    struct Node* new = (struct Node*)malloc(sizeof(struct Node));
+    new->data = x;
+
+    if(head == NULL) {
+        head = new;
+        new->next = head;
+        return;
+    }
+
+    struct Node* t = head;
+    while(t->next != head)
+        t = t->next;
+
+    t->next = new;
+    new->next = head;
+}
+
+void display() {
+    if(head == NULL) return;
+    struct Node* t = head;
+    do {
+        printf("%d -> ", t->data);
+        t = t->next;
+    } while(t != head);
+    printf("(HEAD)");
+}
+
+int main() {
+    insert_end(10);
+    insert_end(20);
+    insert_end(30);
+    display();
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+};
+
+class CSLL {
+    Node* head = NULL;
+
+public:
+    void insert_end(int x) {
+        Node* newNode = new Node();
+        newNode->data = x;
+
+        if(head == NULL) {
+            head = newNode;
+            newNode->next = head;
+            return;
+        }
+
+        Node* t = head;
+        while(t->next != head)
+            t = t->next;
+
+        t->next = newNode;
+        newNode->next = head;
+    }
+
+    void display() {
+        if(head == NULL) return;
+        Node* t = head;
+        do {
+            cout << t->data << " -> ";
+            t = t->next;
+        } while(t != head);
+        cout << "(HEAD)";
+    }
+};
+
+int main() {
+    CSLL c;
+    c.insert_end(10);
+    c.insert_end(20);
+    c.insert_end(30);
+    c.display();
+}
+```
+
+### ☕ Java
+
+```java
+class Node {
+    int data;
+    Node next;
+    Node(int x) { data = x; }
+}
+
+class CSLL {
+    Node head;
+
+    void insertEnd(int x) {
+        Node newNode = new Node(x);
+
+        if(head == null) {
+            head = newNode;
+            newNode.next = head;
+            return;
+        }
+
+        Node t = head;
+        while(t.next != head)
+            t = t.next;
+
+        t.next = newNode;
+        newNode.next = head;
+    }
+
+    void display() {
+        if(head == null) return;
+        Node t = head;
+        do {
+            System.out.print(t.data + " -> ");
+            t = t.next;
+        } while(t != head);
+        System.out.print("(HEAD)");
+    }
+
+    public static void main(String[] args) {
+        CSLL c = new CSLL();
+        c.insertEnd(10);
+        c.insertEnd(20);
+        c.insertEnd(30);
+        c.display();
+    }
+}
+```
+
+---
+
+# CIRCULAR DOUBLY LINKED LIST (CDLL)
+
+## 🔹 What is a CDLL?
+
+A Circular Doubly Linked List is a linked list where:
+
+- Each node has data
+- A pointer to the next node
+- A pointer to the previous node
+- The last node connects to the first node in both directions
+
+This forms a two-way circular chain.
+
+## 🔹 Node Structure
+
+`[ Prev | Data | Next ]`
+
+## 🔹 Structure Example
+
+```
+↔ [P|10|N] ↔ [P|20|N] ↔ [P|30|N] ↔
+↑__________________________________↓
+```
+
+## 🔹 Core Operations
+
+<div className="my-6">
+  <table>
+    <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th>Description</th>
+                <th>Time</th>
+            </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12">Insert at beginning</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Insert at end</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Delete from beginning</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Delete from end</td>
+                <td></td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Forward traversal</td>
+                <td></td>
+                <td>O(n)</td>
+            </tr>
+            <tr>
+                <td className="pr-12">Backward traversal</td>
+                <td></td>
+                <td>O(n)</td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+(*If tail pointer is maintained)
+
+## 🔹 Key Features
+
+- Bidirectional traversal
+- No NULL pointer anywhere
+- Fast insertion & deletion at both ends
+- Most flexible linked list type
+
+## 🔹 Common Uses
+
+- Music playlist looping
+- Browser tab cycling
+- Operating system scheduling
+
+## 💻 CDLL – Working Code
+
+### 🐍 Python
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+        self.prev = None
+
+class CDLL:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, data):
+        new = Node(data)
+        if not self.head:
+            self.head = new
+            new.next = new
+            new.prev = new
+            return
+        tail = self.head.prev
+        tail.next = new
+        new.prev = tail
+        new.next = self.head
+        self.head.prev = new
+
+    def display_forward(self):
+        if not self.head: return
+        t = self.head
+        while True:
+            print(t.data, end=" <-> ")
+            t = t.next
+            if t == self.head:
+                break
+        print("(HEAD)")
+
+# Demo
+c = CDLL()
+c.insert_end(10)
+c.insert_end(20)
+c.insert_end(30)
+c.display_forward()
+```
+
+### 💻 C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node *next, *prev;
+};
+
+struct Node* head = NULL;
+
+void insert_end(int x) {
+    struct Node* new = (struct Node*)malloc(sizeof(struct Node));
+    new->data = x;
+
+    if(head == NULL) {
+        head = new;
+        new->next = new;
+        new->prev = new;
+        return;
+    }
+
+    struct Node* tail = head->prev;
+    tail->next = new;
+    new->prev = tail;
+    new->next = head;
+    head->prev = new;
+}
+
+void display() {
+    if(head == NULL) return;
+    struct Node* t = head;
+    do {
+        printf("%d <-> ", t->data);
+        t = t->next;
+    } while(t != head);
+    printf("(HEAD)");
+}
+
+int main() {
+    insert_end(10);
+    insert_end(20);
+    insert_end(30);
+    display();
+}
+```
+
+### ⚙️ C++
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node *next, *prev;
+};
+
+class CDLL {
+    Node* head = NULL;
+
+public:
+    void insert_end(int x) {
+        Node* newNode = new Node();
+        newNode->data = x;
+
+        if(head == NULL) {
+            head = newNode;
+            newNode->next = newNode;
+            newNode->prev = newNode;
+            return;
+        }
+
+        Node* tail = head->prev;
+        tail->next = newNode;
+        newNode->prev = tail;
+        newNode->next = head;
+        head->prev = newNode;
+    }
+
+    void display() {
+        if(head == NULL) return;
+        Node* t = head;
+        do {
+            cout << t->data << " <-> ";
+            t = t->next;
+        } while(t != head);
+        cout << "(HEAD)";
+    }
+};
+
+int main() {
+    CDLL c;
+    c.insert_end(10);
+    c.insert_end(20);
+    c.insert_end(30);
+    c.display();
+}
+```
+
+### ☕ Java
+
+```java
+class Node {
+    int data;
+    Node next, prev;
+    Node(int x) { data = x; }
+}
+
+class CDLL {
+    Node head;
+
+    void insertEnd(int x) {
+        Node newNode = new Node(x);
+
+        if(head == null) {
+            head = newNode;
+            newNode.next = newNode;
+            newNode.prev = newNode;
+            return;
+        }
+
+        Node tail = head.prev;
+        tail.next = newNode;
+        newNode.prev = tail;
+        newNode.next = head;
+        head.prev = newNode;
+    }
+
+    void display() {
+        if(head == null) return;
+        Node t = head;
+        do {
+            System.out.print(t.data + " <-> ");
+            t = t.next;
+        } while(t != head);
+        System.out.print("(HEAD)");
+    }
+
+    public static void main(String[] args) {
+        CDLL c = new CDLL();
+        c.insertEnd(10);
+        c.insertEnd(20);
+        c.insertEnd(30);
+        c.display();
+    }
+}
+```# Linked List Data Structures
+
+A linked list is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence.
+
+## Basic Node Structure
+
+```c
+// Basic node structure
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+```
+
+## Singly Linked List Implementation
+
+```c
+// Create new node
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Insert at beginning
+Node* insertFront(Node* head, int data) {
+    Node* newNode = createNode(data);
+    newNode->next = head;
+    return newNode;
+}
+
+// Insert at end
+Node* insertBack(Node* head, int data) {
+    Node* newNode = createNode(data);
+
+    if (head == NULL)
+        return newNode;
+
+    Node* current = head;
+    while (current->next != NULL)
+        current = current->next;
+
+    current->next = newNode;
+    return head;
+}
+
+// Delete from front
+Node* deleteFront(Node* head) {
+    if (head == NULL)
+        return NULL;
+
+    Node* temp = head->next;
+    free(head);
+    return temp;
+}
+
+// Print list
+void printList(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+```
+
+## Doubly Linked List Implementation
+
+```c
+typedef struct DNode {
+    int data;
+    struct DNode* next;
+    struct DNode* prev;
+} DNode;
+
+// Create new node
+DNode* createDNode(int data) {
+    DNode* newNode = (DNode*)malloc(sizeof(DNode));
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+// Insert at beginning
+DNode* insertFrontDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+
+    if (head != NULL) {
+        newNode->next = head;
+        head->prev = newNode;
+    }
+
+    return newNode;
+}
+
+// Insert at end
+DNode* insertBackDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+
+    if (head == NULL)
+        return newNode;
+
+    DNode* current = head;
+    while (current->next != NULL)
+        current = current->next;
+
+    current->next = newNode;
+    newNode->prev = current;
+
+    return head;
+}
+```
+
+## Circular Singly Linked List Implementation
+
+```c
+// Insert in circular list
+Node* insertCSLL(Node* head, int data) {
+    Node* newNode = createNode(data);
+
+    if (head == NULL) {
+        newNode->next = newNode;  // Point to itself
+        return newNode;
+    }
+
+    // Insert at end
+    newNode->next = head->next;
+    head->next = newNode;
+
+    return head;
+}
+
+// Delete from circular list
+Node* deleteCSLL(Node* head) {
+    if (head == NULL || head->next == head) {
+        free(head);
+        return NULL;
+    }
+
+    Node* temp = head->next;
+    head->next = temp->next;
+    free(temp);
+    return head;
+}
+```
+
+## Circular Doubly Linked List Implementation
+
+```c
+// Insert in circular doubly list
+DNode* insertCDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+
+    if (head == NULL) {
+        newNode->next = newNode;
+        newNode->prev = newNode;
+        return newNode;
+    }
+
+    // Insert at end
+    newNode->next = head;
+    newNode->prev = head->prev;
+    head->prev->next = newNode;
+    head->prev = newNode;
+
+    return head;
+}
+
+// Delete from circular doubly list
+DNode* deleteCDLL(DNode* head) {
+    if (head == NULL || head->next == head) {
+        free(head);
+        return NULL;
+    }
+
+    DNode* temp = head->next;
+    head->next = temp->next;
+    temp->next->prev = head;
+    free(temp);
+    return head;
+}
+```
+
+## Common Operations
+
+### Traversal
+```c
+// Forward traversal
+void traverse(Node* head) {
+    Node* current = head;
+    do {
+        printf("%d -> ", current->data);
+        current = current->next;
+    } while (current != head && current != NULL);
+    printf("NULL\n");
+}
+
+// Reverse traversal (DLL/CDLL)
+void reverseTraverse(DNode* tail) {
+    DNode* current = tail;
+    do {
+        printf("%d -> ", current->data);
+        current = current->prev;
+    } while (current != tail && current != NULL);
+    printf("NULL\n");
+}
+```
+
+## Applications
+- Implementation of stacks and queues
+- Music playlist (circular)
+- Undo/Redo operations (doubly)
+- Memory allocation
+- Hash tables (chaining)

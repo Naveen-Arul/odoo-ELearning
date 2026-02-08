@@ -1,0 +1,32 @@
+{
+  "name": "skillforge-ai",
+  "version": "1.0.0",
+  "description": "AI-powered Edu-Tech and Career Growth platform",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cross-env PORT=3001 node backend/scripts/killPort.js && concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\" \"cd dsa/dsa-visualizer && npm run dev -- -p 3001\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "seed": "cd backend && node seed/seedData.js",
+    "build": "cd frontend && npm run build",
+    "test": "cd backend && npm test && cd ../frontend && npm test"
+  },
+  "keywords": [
+    "mern",
+    "education",
+    "ai",
+    "learning",
+    "career",
+    "roadmap"
+  ],
+  "author": "SkillForge Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0"
+  }
+}

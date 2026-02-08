@@ -1,0 +1,389 @@
+# STACK – Complete Explanation
+
+## 🔹 What is a Stack?
+
+A Stack is a linear data structure that follows the rule:
+
+**LIFO — Last In, First Out**
+
+Meaning:
+
+- The element added last is removed first.
+- Works like a stack of plates.
+
+## 🔹 Core Operations
+
+<div className="my-6">
+    <table>
+        <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th className="pr-12">Meaning</th>
+                <th className="pr-12">Time Complexity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td className="pr-12"><code>push(x)</code></td>
+                <td className="pr-12">Insert element at top</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>pop()</code></td>
+                <td className="pr-12">Remove top element</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>peek()</code> / <code>top()</code></td>
+                <td className="pr-12">View top element</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>isEmpty()</code></td>
+                <td className="pr-12">Check if stack is empty</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>isFull()</code></td>
+                <td className="pr-12"> (only in array impl)</td>
+                <td>O(1)</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+## 🔹 Real-World Uses
+
+- Function call stack
+- Undo / Redo
+- Expression evaluation
+- Backtracking
+- Browser history
+
+## 🔹 Stack Implementation Methods
+
+1) **Array-based Stack**
+
+- Uses fixed-size array
+- Faster
+- Size must be predefined
+
+2) **Linked-list Stack**
+
+- Dynamic size
+- No overflow until memory exhausted
+
+Below — Array-based implementation (most common in interviews).
+
+## 💻 IMPLEMENTATIONS
+
+### 🐍 Python Implementation
+
+```python
+class Stack:
+    def __init__(self):
+        self.s = []
+
+    def push(self, x):
+        self.s.append(x)
+
+    def pop(self):
+        return None if self.is_empty() else self.s.pop()
+
+    def peek(self):
+        return None if self.is_empty() else self.s[-1]
+
+    def is_empty(self):
+        return len(self.s) == 0
+
+
+# Demo
+st = Stack()
+st.push(10)
+st.push(20)
+print(st.pop())   # 20
+print(st.peek())  # 10
+```
+
+### ☕ Java Implementation
+
+```java
+class Stack {
+    int arr[];
+    int top;
+    int size;
+
+    Stack(int n) {
+        size = n;
+        arr = new int[n];
+        top = -1;
+    }
+
+    void push(int x) {
+        if (top == size - 1) return;
+        arr[++top] = x;
+    }
+
+    int pop() {
+        if (top == -1) return -1;
+        return arr[top--];
+    }
+
+    int peek() {
+        if (top == -1) return -1;
+        return arr[top];
+    }
+
+    boolean isEmpty() {
+        return top == -1;
+    }
+
+    public static void main(String[] args) {
+        Stack st = new Stack(5);
+        st.push(10);
+        st.push(20);
+        System.out.println(st.pop());
+        System.out.println(st.peek());
+    }
+}
+```
+
+### 💻 C Implementation
+
+```c
+#include <stdio.h>
+#define MAX 100
+
+int stack[MAX], top = -1;
+
+void push(int x) {
+    if(top == MAX-1) return;
+    stack[++top] = x;
+}
+
+int pop() {
+    if(top == -1) return -1;
+    return stack[top--];
+}
+
+int peek() {
+    if(top == -1) return -1;
+    return stack[top];
+}
+
+int main() {
+    push(10);
+    push(20);
+    printf("%d\n", pop());
+    printf("%d\n", peek());
+}
+```
+
+### ⚙️ C++ Implementation
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Stack {
+    int arr[100], top;
+
+public:
+    Stack() { top = -1; }
+
+    void push(int x) {
+        if(top == 99) return;
+        arr[++top] = x;
+    }
+
+    int pop() {
+        if(top == -1) return -1;
+        return arr[top--];
+    }
+
+    int peek() {
+        if(top == -1) return -1;
+        return arr[top];
+    }
+
+    bool isEmpty() {
+        return top == -1;
+    }
+};
+
+int main() {
+    Stack st;
+    st.push(10);
+    st.push(20);
+    cout << st.pop() << endl;
+    cout << st.peek() << endl;
+}
+```
+
+## 🧠 Key Interview Points
+
+- Stack follows LIFO
+- `push`/`pop` are $O(1)$
+- Overflow in array implementation
+- Dynamic size in linked list
+- Used in recursion and expression parsing# Stack Data Structure
+
+A stack is a linear data structure that follows the Last-In-First-Out (LIFO) principle. Elements are added and removed from the same end, called the top of the stack.
+
+## Implementation
+
+Here's a basic implementation in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int items[MAX_SIZE];
+    int top;
+} Stack;
+
+// Initialize stack
+void initStack(Stack* stack) {
+    stack->top = -1;
+}
+
+// Check if stack is full
+int isFull(Stack* stack) {
+    return stack->top == MAX_SIZE - 1;
+}
+
+// Check if stack is empty
+int isEmpty(Stack* stack) {
+    return stack->top == -1;
+}
+
+// Push operation
+int push(Stack* stack, int value) {
+    if (isFull(stack)) {
+        printf("Stack Overflow\n");
+        return 0;
+    }
+
+    stack->items[++stack->top] = value;
+    printf("%d pushed to stack\n", value);
+    return 1;
+}
+
+// Pop operation
+int pop(Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+
+    return stack->items[stack->top--];
+}
+
+// Peek operation
+int peek(Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack is empty\n");
+        return -1;
+    }
+
+    return stack->items[stack->top];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    Stack stack;
+    initStack(&stack);
+
+    // Push elements
+    push(&stack, 10);
+    push(&stack, 20);
+    push(&stack, 30);
+
+    // Pop elements
+    printf("Popped: %d\n", pop(&stack));  // 30
+    printf("Popped: %d\n", pop(&stack));  // 20
+
+    // Peek at top element
+    printf("Top element: %d\n", peek(&stack));  // 10
+
+    return 0;
+}
+```
+
+## Operations
+
+### Push (O(1))
+- Adds an element to the top of the stack
+- If stack is full, results in stack overflow
+
+### Pop (O(1))
+- Removes and returns the top element
+- If stack is empty, results in stack underflow
+
+### Peek/Top (O(1))
+- Returns the top element without removing it
+- Does not modify the stack
+
+## Properties
+- Fixed size (in array implementation)
+- Elements are ordered by insertion time
+- Only top element is accessible
+- Follows LIFO principle
+
+## Dynamic Implementation
+
+Here's a dynamic stack implementation using linked list:
+
+```c
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+typedef struct {
+    Node* top;
+} DynamicStack;
+
+// Initialize stack
+void initDynamicStack(DynamicStack* stack) {
+    stack->top = NULL;
+}
+
+// Push operation
+void dynamicPush(DynamicStack* stack, int value) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    newNode->data = value;
+    newNode->next = stack->top;
+    stack->top = newNode;
+    printf("%d pushed to stack\n", value);
+}
+
+// Pop operation
+int dynamicPop(DynamicStack* stack) {
+    if (stack->top == NULL) {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+
+    Node* temp = stack->top;
+    int value = temp->data;
+    stack->top = stack->top->next;
+    free(temp);
+    return value;
+}
+```
+
+## Applications
+- Function call stack in programming languages
+- Expression evaluation and syntax parsing
+- Undo operations in text editors
+- Browser history (back button)
+- Backtracking algorithms

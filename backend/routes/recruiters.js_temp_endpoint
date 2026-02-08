@@ -1,0 +1,90 @@
+
+/**
+ * @route   GET /api/recruiters/dashboard-stats
+ * @desc    Get aggregated stats for recruiter dashboard
+ * @access  Private
+ */
+router.get('/dashboard-stats', protect, asyncHandler(async (req, res) => {
+    const recruiter = await Recruiter.findOne({ user: req.user.id });
+    if (!recruiter) throw new ApiError('Recruiter required', 403);
+
+    const JobApplication = require('../models/JobApplication');
+
+    // 1. Get all jobs by this recruiter
+    const jobs = await JobPosting.find({ recruiter: recruiter._id }).select('_id status title');
+    const jobIds = jobs.map(j => j._id);
+
+    // 2. Aggregate applications
+    const stats = await JobApplication.aggregate([
+        { $match: { job: { $in: jobIds } } },
+        {
+            $group: {
+                _id: '$status',
+                count: { $sum: 1 }
+            }
+        }
+    ]);
+
+    // 3. Map to pipeline
+    const pipeline = {
+        applied: 0,
+        shortlisted: 0,
+        interview: 0,
+        offer: 0,
+        hired: 0,
+        rejected: 0
+    };
+
+    let totalApplications = 0;
+
+    stats.forEach(s => {
+        totalApplications += s.count;
+        switch(s._id) {
+            case 'submitted':
+            case 'under-review':
+                pipeline.applied += s.count;
+                break;
+            case 'shortlisted':
+                pipeline.shortlisted += s.count;
+                break;
+            case 'interview-scheduled':
+                pipeline.interview += s.count;
+                break;
+            case 'offer-sent':
+                pipeline.offer += s.count;
+                break;
+            case 'accepted':
+                pipeline.hired += s.count;
+                break;
+            case 'rejected':
+                pipeline.rejected += s.count;
+                break;
+        }
+    });
+
+    // 4. Get active vs closed jobs config
+    const activeJobs = jobs.filter(j => j.status === 'active').length;
+    const closedJobs = jobs.filter(j => j.status === 'closed' || j.status === 'filled').length;
+
+    // 5. Recent Activity (simple version: last 5 apps)
+    const recentActivity = await JobApplication.find({ job: { $in: jobIds } })
+        .sort({ updatedAt: -1 })
+        .limit(5)
+        .populate('applicant', 'name')
+        .populate('job', 'title');
+
+    res.status(200).json({
+        success: true,
+        data: {
+            overview: {
+                totalJobs: jobs.length,
+                activeJobs,
+                closedJobs,
+                totalApplications,
+                hired: pipeline.hired
+            },
+            pipeline,
+            recentActivity
+        }
+    });
+}));

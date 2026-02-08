@@ -1,0 +1,412 @@
+# QUEUE – Complete Explanation
+
+## 🔹 What is a Queue?
+
+A Queue is a linear data structure that follows:
+
+**FIFO — First In, First Out**
+
+Meaning:
+
+- The element inserted first is removed first.
+- Works like a real-life waiting line.
+
+## 🔹 Core Operations
+
+<div className="my-6">
+  <table>
+    <thead>
+            <tr>
+                <th className="pr-12">Operation</th>
+                <th className="pr-12">Meaning</th>
+                <th>Time Complexity</th>
+            </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td className="pr-12"><code>enqueue(x)</code></td>
+                <td className="pr-12">Insert element at rear</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>dequeue()</code></td>
+                <td className="pr-12">Remove element from front</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>front()</code></td>
+                <td className="pr-12">View front element</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>rear()</code></td>
+                <td className="pr-12">View last element</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>isEmpty()</code></td>
+                <td className="pr-12">Check if queue is empty</td>
+                <td>O(1)</td>
+            </tr>
+            <tr>
+                <td className="pr-12"><code>isFull()</code></td>
+                <td className="pr-12">(array impl only)</td>
+                <td>O(1)</td>
+            </tr>
+    </tbody>
+  </table>
+</div>
+
+## 🔹 Types of Queues
+
+- Simple Queue
+- Circular Queue (efficient array use)
+- Priority Queue
+- Deque (Double Ended Queue)
+
+(Interviews usually expect Simple or Circular Queue)
+
+## 🔹 Real-World Uses
+
+- CPU Scheduling
+- Printer spooling
+- BFS in graphs
+- Call center systems
+- Order processing
+
+## 💻 IMPLEMENTATIONS
+
+### 🐍 Python Implementation
+
+```python
+class Queue:
+    def __init__(self):
+        self.q = []
+
+    def enqueue(self, x):
+        self.q.append(x)
+
+    def dequeue(self):
+        return None if self.is_empty() else self.q.pop(0)
+
+    def front(self):
+        return None if self.is_empty() else self.q[0]
+
+    def is_empty(self):
+        return len(self.q) == 0
+
+
+# Demo
+qu = Queue()
+qu.enqueue(10)
+qu.enqueue(20)
+print(qu.dequeue())  # 10
+print(qu.front())    # 20
+```
+
+### ☕ Java Implementation (Circular Array — Optimal)
+
+```java
+class Queue {
+    int arr[];
+    int front, rear, size, capacity;
+
+    Queue(int cap) {
+        capacity = cap;
+        arr = new int[cap];
+        front = size = 0;
+        rear = cap - 1;
+    }
+
+    void enqueue(int x) {
+        if (size == capacity) return;
+        rear = (rear + 1) % capacity;
+        arr[rear] = x;
+        size++;
+    }
+
+    int dequeue() {
+        if (size == 0) return -1;
+        int x = arr[front];
+        front = (front + 1) % capacity;
+        size--;
+        return x;
+    }
+
+    int front() {
+        return size == 0 ? -1 : arr[front];
+    }
+
+    public static void main(String[] args) {
+        Queue q = new Queue(5);
+        q.enqueue(10);
+        q.enqueue(20);
+        System.out.println(q.dequeue());
+        System.out.println(q.front());
+    }
+}
+```
+
+### 💻 C Implementation (Circular Queue)
+
+```c
+#include <stdio.h>
+#define SIZE 5
+
+int q[SIZE], front = 0, rear = -1, count = 0;
+
+void enqueue(int x) {
+    if(count == SIZE) return;
+    rear = (rear + 1) % SIZE;
+    q[rear] = x;
+    count++;
+}
+
+int dequeue() {
+    if(count == 0) return -1;
+    int x = q[front];
+    front = (front + 1) % SIZE;
+    count--;
+    return x;
+}
+
+int frontElement() {
+    if(count == 0) return -1;
+    return q[front];
+}
+
+int main() {
+    enqueue(10);
+    enqueue(20);
+    printf("%d\n", dequeue());
+    printf("%d\n", frontElement());
+}
+```
+
+### ⚙️ C++ Implementation (Circular Queue)
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Queue {
+    int arr[5], front, rear, count;
+
+public:
+    Queue() {
+        front = 0; rear = -1; count = 0;
+    }
+
+    void enqueue(int x) {
+        if(count == 5) return;
+        rear = (rear + 1) % 5;
+        arr[rear] = x;
+        count++;
+    }
+
+    int dequeue() {
+        if(count == 0) return -1;
+        int x = arr[front];
+        front = (front + 1) % 5;
+        count--;
+        return x;
+    }
+
+    int front() {
+        return count == 0 ? -1 : arr[front];
+    }
+};
+
+int main() {
+    Queue q;
+    q.enqueue(10);
+    q.enqueue(20);
+    cout << q.dequeue() << endl;
+    cout << q.front() << endl;
+}
+```
+
+## 🧠 Key Interview Points
+
+- Queue follows FIFO
+- Circular queue avoids unused space
+- `enqueue`/`dequeue` are O(1)
+- Used in BFS traversal
+- Deque allows both-end operations# Queue Data Structure
+
+A queue is a linear data structure that follows the First-In-First-Out (FIFO) principle. Elements are added at the rear (enqueue) and removed from the front (dequeue).
+
+## Implementation
+
+Here's a basic implementation in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int items[MAX_SIZE];
+    int front;
+    int rear;
+    int size;
+} Queue;
+
+// Initialize queue
+void initQueue(Queue* q) {
+    q->front = 0;
+    q->rear = -1;
+    q->size = 0;
+}
+
+// Check if queue is full
+int isFull(Queue* q) {
+    return q->size == MAX_SIZE;
+}
+
+// Check if queue is empty
+int isEmpty(Queue* q) {
+    return q->size == 0;
+}
+
+// Add element to queue
+int enqueue(Queue* q, int value) {
+    if (isFull(q)) {
+        printf("Queue Overflow\n");
+        return 0;
+    }
+
+    q->rear = (q->rear + 1) % MAX_SIZE;
+    q->items[q->rear] = value;
+    q->size++;
+    printf("%d enqueued to queue\n", value);
+    return 1;
+}
+
+// Remove element from queue
+int dequeue(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue Underflow\n");
+        return -1;
+    }
+
+    int value = q->items[q->front];
+    q->front = (q->front + 1) % MAX_SIZE;
+    q->size--;
+    return value;
+}
+
+// Get front element
+int front(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty\n");
+        return -1;
+    }
+    return q->items[q->front];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    Queue queue;
+    initQueue(&queue);
+
+    // Add elements
+    enqueue(&queue, 10);
+    enqueue(&queue, 20);
+    enqueue(&queue, 30);
+
+    // Remove elements
+    printf("Dequeued: %d\n", dequeue(&queue));  // 10
+    printf("Dequeued: %d\n", dequeue(&queue));  // 20
+
+    // Check front element
+    printf("Front element: %d\n", front(&queue));  // 30
+
+    return 0;
+}
+```
+
+## Circular Queue Implementation
+
+```c
+typedef struct {
+    int items[MAX_SIZE];
+    int front;
+    int rear;
+} CircularQueue;
+
+void initCircularQueue(CircularQueue* q) {
+    q->front = -1;
+    q->rear = -1;
+}
+
+int isCircularFull(CircularQueue* q) {
+    return (q->rear + 1) % MAX_SIZE == q->front;
+}
+
+int isCircularEmpty(CircularQueue* q) {
+    return q->front == -1;
+}
+
+void circularEnqueue(CircularQueue* q, int value) {
+    if (isCircularFull(q)) {
+        printf("Queue is full\n");
+        return;
+    }
+
+    if (q->front == -1)
+        q->front = 0;
+
+    q->rear = (q->rear + 1) % MAX_SIZE;
+    q->items[q->rear] = value;
+    printf("%d enqueued to circular queue\n", value);
+}
+
+int circularDequeue(CircularQueue* q) {
+    if (isCircularEmpty(q)) {
+        printf("Queue is empty\n");
+        return -1;
+    }
+
+    int value = q->items[q->front];
+
+    if (q->front == q->rear) {
+        // Last element
+        q->front = -1;
+        q->rear = -1;
+    } else {
+        q->front = (q->front + 1) % MAX_SIZE;
+    }
+
+    return value;
+}
+```
+
+## Operations
+
+### Enqueue (O(1))
+- Adds an element to the rear of the queue
+- If queue is full, results in queue overflow
+
+### Dequeue (O(1))
+- Removes and returns the front element
+- If queue is empty, results in queue underflow
+
+### Front/Peek (O(1))
+- Returns the front element without removing it
+- Does not modify the queue
+
+## Properties
+- Fixed size (in array implementation)
+- Elements are ordered by arrival time
+- Only front element is accessible for removal
+- Follows FIFO principle
+
+## Applications
+- Process scheduling in operating systems
+- Print job scheduling
+- Breadth-first search in graphs
+- Request handling in web servers
+- Message queues in system design
+- Buffering in data streams

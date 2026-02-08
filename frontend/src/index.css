@@ -1,0 +1,478 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* DSA Visualizer theme tokens */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    /* Deep Blackish */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 100%;
+    /* Pure White */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 100%;
+    /* Pure White */
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 100%;
+    /* Pure White */
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 0 0% 90%;
+    /* Very Light Gray (90% White) */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html:not(.dark) .text-white {
+    color: hsl(var(--foreground));
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring shadow-lg shadow-ring/20;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-ring border border-border;
+  }
+
+  .btn-accent {
+    @apply btn bg-accent text-accent-foreground hover:bg-accent/80 focus:ring-ring shadow-lg shadow-ring/20;
+  }
+
+  .btn-danger {
+    @apply btn bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-ring;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-full;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-card text-card-foreground backdrop-blur-sm rounded-xl border border-border/60 shadow-xl transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply card hover:border-primary/40 hover:shadow-glow hover:scale-[1.02];
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full px-4 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring;
+  }
+
+  .input-error {
+    @apply input border-destructive focus:ring-destructive/50 focus:border-destructive;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-muted-foreground mb-1.5;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary/15 text-primary;
+  }
+
+  .badge-accent {
+    @apply badge bg-accent/20 text-accent-foreground;
+  }
+
+  .badge-warning {
+    @apply badge bg-chart-4/20 text-chart-4;
+  }
+
+  .badge-danger {
+    @apply badge bg-destructive/20 text-destructive;
+  }
+
+  .badge-secondary {
+    @apply badge bg-secondary text-secondary-foreground;
+  }
+
+  /* Progress bars */
+  .progress {
+    @apply w-full h-2 bg-muted rounded-full overflow-hidden;
+  }
+
+  .progress-bar {
+    @apply h-full bg-primary rounded-full transition-all duration-500 ease-out;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/60;
+  }
+
+  .nav-link-active {
+    @apply nav-link bg-primary/10 text-foreground border-l-2 border-primary;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/60;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Tooltips */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs text-popover-foreground bg-popover rounded shadow-lg whitespace-nowrap border border-border;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    @apply fixed inset-0 bg-foreground/10 backdrop-blur-sm z-40 flex items-center justify-center p-4;
+  }
+
+  /* Dropdown menu */
+  .dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-xl py-1 z-50 animate-fade-in;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors duration-150;
+  }
+
+  /* Code blocks */
+  .code-block {
+    @apply font-mono text-sm bg-muted/40 rounded-lg p-4 overflow-x-auto border border-border;
+  }
+
+  /* Avatar */
+  .avatar {
+    @apply w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold;
+  }
+
+  .avatar-sm {
+    @apply w-8 h-8 text-sm;
+  }
+
+  .avatar-lg {
+    @apply w-14 h-14 text-lg;
+  }
+
+  /* Section headers */
+  .section-title {
+    @apply text-2xl font-bold text-foreground mb-2;
+  }
+
+  .section-subtitle {
+    @apply text-muted-foreground;
+  }
+
+  /* Feature cards */
+  .feature-card {
+    @apply card p-6 group;
+  }
+
+  .feature-icon {
+    @apply w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-300;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+
+  /* Hide scrollbar */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary/90;
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.08) 0%,
+        hsl(var(--accent) / 0.08) 50%,
+        hsl(var(--chart-2) / 0.08) 100%);
+  }
+
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Line clamp */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Animation delay utilities */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Aspect ratio */
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* React Calendar Heatmap custom styles */
+.react-calendar-heatmap {
+  @apply w-full;
+}
+
+.react-calendar-heatmap text {
+  @apply fill-muted-foreground text-xs;
+}
+
+.react-calendar-heatmap .color-empty {
+  @apply fill-muted;
+}
+
+.react-calendar-heatmap .color-scale-1 {
+  fill: hsl(var(--chart-2) / 0.3);
+}
+
+.react-calendar-heatmap .color-scale-2 {
+  fill: hsl(var(--chart-2) / 0.5);
+}
+
+.react-calendar-heatmap .color-scale-3 {
+  fill: hsl(var(--chart-2) / 0.7);
+}
+
+.react-calendar-heatmap .color-scale-4 {
+  fill: hsl(var(--chart-2));
+}
+
+/* Chart.js custom styles */
+.chartjs-tooltip {
+  @apply bg-popover border border-border rounded-lg shadow-xl px-3 py-2 text-sm text-popover-foreground !important;
+}
+
+/* React Player wrapper */
+.player-wrapper {
+  @apply relative pt-[56.25%];
+  /* 16:9 aspect ratio */
+}
+
+.player-wrapper .react-player {
+  @apply absolute top-0 left-0;
+}
+
+/* Markdown content styles */
+.markdown-content {
+  @apply prose prose-sm max-w-none;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  @apply text-foreground font-bold;
+}
+
+.markdown-content p {
+  @apply text-muted-foreground leading-relaxed;
+}
+
+.markdown-content a {
+  @apply text-primary hover:text-primary/80 underline;
+}
+
+.markdown-content code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-primary;
+}
+
+.markdown-content pre {
+  @apply bg-muted/40 rounded-lg p-4 overflow-x-auto;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  @apply text-muted-foreground;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+}
+
+/* Toast notifications custom styles */
+.toast-custom {
+  @apply bg-popover text-popover-foreground border border-border rounded-lg shadow-xl;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-5 h-5 border-2 border-border border-t-primary rounded-full animate-spin;
+}
+
+.spinner-lg {
+  @apply w-8 h-8 border-[3px] border-border border-t-primary rounded-full animate-spin;
+}

@@ -1,0 +1,908 @@
+═══════════════════════════════════════════════════════════════════════════════
+                        SKILLFORGE AI - PROJECT DOCUMENTATION
+                     Complete Structure and Workflow for Flowchart Creation
+═══════════════════════════════════════════════════════════════════════════════
+
+PROJECT OVERVIEW
+----------------
+SkillForge AI is a comprehensive AI-powered Educational Technology and Career Growth platform
+featuring adaptive learning, role-based roadmaps, AI tutoring, career analytics, and social features.
+
+TECHNOLOGY STACK
+----------------
+Backend:  Node.js + Express.js + MongoDB + Mongoose
+Frontend: React 18 + Zustand + Tailwind CSS + Framer Motion
+Auth:     JWT + Passport.js (Google/GitHub OAuth)
+AI:       Gemini + Groq + Perplexity APIs
+Email:    Nodemailer
+Scheduler: node-cron
+Real-time: Socket.io
+
+═══════════════════════════════════════════════════════════════════════════════
+                            1. SYSTEM ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+HIGH-LEVEL ARCHITECTURE:
+
+Client (Browser)
+    ↓
+React Frontend (Port 3000)
+    ↓ HTTP/REST API
+Backend Server (Port 5000)
+    ↓
+├─→ MongoDB Database
+├─→ AI Services (Gemini/Groq/Perplexity)
+├─→ External APIs (GitHub/LeetCode)
+├─→ Email Service (SMTP)
+└─→ Socket.io (Real-time)
+
+═══════════════════════════════════════════════════════════════════════════════
+                          2. DATABASE MODELS (32 Total)
+═══════════════════════════════════════════════════════════════════════════════
+
+CORE MODELS:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ User                   - Main user profile with auth, preferences       │
+│ Role                   - Career roles (Full Stack Dev, Data Scientist)  │
+│ Roadmap                - Learning paths for roles                       │
+│ Topic                  - Individual learning topics within roadmaps     │
+│ ProgrammingLanguage    - Languages (Python, JavaScript, etc.)           │
+│ LanguageTopic          - Topics for specific programming languages      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+LEARNING & TESTING:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ DailyStudyPlan         - Auto-generated daily study schedules           │
+│ TestAttempt            - Quiz/test results and scores                   │
+│ TimeTrackingSession    - User study time tracking                       │
+│ Challenge              - Coding challenges                              │
+│ ProjectSubmission      - User project submissions                       │
+│ PeerReview             - Peer-to-peer review system                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+CAREER & PROFESSIONAL:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CareerAnalysis         - LeetCode/GitHub profile analysis               │
+│ Certificate            - Course completion certificates                 │
+│ JobPosting             - Job board listings                             │
+│ JobApplication         - User job applications                          │
+│ Company                - Company profiles                               │
+│ Recruiter              - Recruiter accounts                             │
+│ MentorProfile          - Mentor information                             │
+│ MentoringSession       - Mentor-student sessions                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+SOCIAL & COMMUNITY:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CommunityPost          - Forum posts and discussions                    │
+│ Message                - Direct messaging                               │
+│ Connection             - User connections/following                     │
+│ StudyRoom              - Collaborative study rooms                      │
+│ Hackathon              - Hackathon events                               │
+│ Cohort                 - Learning cohorts/groups                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+GAMIFICATION & AI:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ SkillBadge             - Achievement badges                             │
+│ Leaderboard            - Ranking system                                 │
+│ AIChatSession          - AI tutor conversation history                  │
+│ LeetCodeSubmission     - LeetCode problem submissions                   │
+│ AuditLog               - System audit logging                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                         3. API ROUTES & ENDPOINTS (31 Routes)
+═══════════════════════════════════════════════════════════════════════════════
+
+BASE URL: http://localhost:5000/api/v1
+
+AUTHENTICATION ROUTES (/auth):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ POST   /register                 - Create new user account              │
+│ POST   /login                    - Email/password login                 │
+│ GET    /google                   - Google OAuth initiation              │
+│ GET    /google/callback          - Google OAuth callback                │
+│ GET    /github                   - GitHub OAuth initiation              │
+│ GET    /github/callback          - GitHub OAuth callback                │
+│ POST   /forgot-password          - Request password reset               │
+│ POST   /reset-password           - Reset password with token            │
+│ POST   /verify-email             - Verify email address                 │
+│ GET    /logout                   - Logout user                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+USER ROUTES (/users):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /me                       - Get current user profile             │
+│ PUT    /me                       - Update user profile                  │
+│ POST   /onboarding               - Complete onboarding process          │
+│ GET    /analytics                - Get user activity analytics          │
+│ PUT    /preferences              - Update user preferences              │
+│ POST   /career-data              - Update career information            │
+│ GET    /career-data              - Get career information               │
+│ POST   /verify-leetcode          - Verify LeetCode username             │
+│ POST   /verify-github            - Verify GitHub username               │
+└─────────────────────────────────────────────────────────────────────────┘
+
+ROADMAP ROUTES (/roadmaps):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /                         - List all roadmaps                    │
+│ GET    /:id                      - Get roadmap details                  │
+│ POST   /:id/enroll               - Enroll in roadmap (max 3)            │
+│ DELETE /:id/unenroll             - Unenroll from roadmap                │
+│ PUT    /:id/progress             - Update learning progress             │
+│ GET    /enrolled                 - Get user's enrolled roadmaps         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+TOPIC ROUTES (/topics):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /:id                      - Get topic details (videos, docs)     │
+│ POST   /:id/complete             - Mark topic as completed              │
+│ POST   /:id/uncomplete           - Mark topic as not completed          │
+│ GET    /:id/test                 - Generate AI test for topic           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+ROLE ROUTES (/roles):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /                         - List all career roles                │
+│ GET    /:id                      - Get role details                     │
+│ POST   /suggest                  - AI-powered role suggestion           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+LANGUAGE ROUTES (/languages):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /                         - List programming languages            │
+│ GET    /:id                      - Get language details & topics        │
+│ GET    /:id/topics               - Get topics for language              │
+│ POST   /:id/topics/:topicId/complete - Mark language topic complete      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STUDY PLAN ROUTES (/study-plan):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /today                    - Get today's study plan               │
+│ GET    /week                     - Get weekly study plan                │
+│ POST   /generate                 - Generate new personalized plan       │
+│ PUT    /:id/complete             - Mark plan item as complete           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+TEST ROUTES (/tests):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ POST   /generate                 - Generate AI quiz from topic          │
+│ POST   /submit                   - Submit test answers                  │
+│ GET    /attempts                 - Get user's test history              │
+│ GET    /attempts/:id             - Get specific test attempt            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+AI ROUTES (/ai):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ POST   /teacher                  - Ask AI teacher for explanations      │
+│ POST   /tutor/generate           - Generate practice quiz               │
+│ POST   /mentor                   - Get career guidance                  │
+│ POST   /interviewer/start        - Start mock interview                 │
+│ POST   /interviewer/answer       - Submit interview answer              │
+│ GET    /chat-history             - Get AI chat history                  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+CAREER ROUTES (/career):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ POST   /leetcode/analyze         - Analyze LeetCode profile             │
+│ POST   /github/analyze           - Analyze GitHub profile               │
+│ POST   /resume/analyze           - ATS resume scoring                   │
+│ GET    /github/repos             - Get GitHub repositories              │
+│ GET    /analysis                 - Get all career analyses              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+SOCIAL ROUTES (/social):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ POST   /follow/:userId           - Follow a user                        │
+│ DELETE /unfollow/:userId         - Unfollow a user                      │
+│ GET    /followers                - Get user's followers                 │
+│ GET    /following                - Get users being followed             │
+│ GET    /messages                 - Get chat messages                    │
+│ POST   /messages                 - Send message                         │
+│ GET    /study-rooms              - List study rooms                     │
+│ POST   /study-rooms              - Create study room                    │
+│ POST   /study-rooms/:id/join     - Join study room                      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+COMMUNITY ROUTES (/community):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /posts                    - List community posts                 │
+│ POST   /posts                    - Create new post                      │
+│ POST   /posts/:id/like           - Like a post                          │
+│ POST   /posts/:id/comment        - Comment on post                      │
+│ DELETE /posts/:id                - Delete post                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+JOB ROUTES (/jobs):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /                         - List job postings                    │
+│ GET    /:id                      - Get job details                      │
+│ POST   /:id/apply                - Apply to job                         │
+│ GET    /applications             - User's job applications              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+RECRUITER ROUTES (/recruiters):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /dashboard                - Recruiter dashboard stats            │
+│ POST   /jobs                     - Post new job                         │
+│ GET    /jobs/:id/applicants      - View job applicants                  │
+│ PUT    /applications/:id/status  - Update application status            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+COMPANY ROUTES (/company):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /profile                  - Get company profile                  │
+│ PUT    /profile                  - Update company profile               │
+│ GET    /dashboard                - Company dashboard                    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+GAMIFICATION ROUTES (/gamification):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /badges                   - Get user badges                      │
+│ GET    /xp                       - Get XP history                       │
+│ GET    /leaderboard              - View leaderboard                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+ADMIN ROUTES (/admin) - Protected:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ GET    /stats                    - Platform analytics                   │
+│ GET    /users                    - List all users                       │
+│ PUT    /users/:id                - Update user                          │
+│ DELETE /users/:id                - Delete user                          │
+│ CRUD   /roles                    - Manage career roles                  │
+│ CRUD   /roadmaps                 - Manage roadmaps                      │
+│ CRUD   /topics                   - Manage topics                        │
+│ CRUD   /languages                - Manage programming languages         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                       4. FRONTEND PAGES & COMPONENTS (54 Pages)
+═══════════════════════════════════════════════════════════════════════════════
+
+AUTHENTICATION PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ LoginPage.js             - Email/password + OAuth login                 │
+│ RegisterPage.js          - User registration                            │
+│ OAuthCallback.js         - OAuth redirect handler                       │
+│ ForgotPassword.js        - Password reset request                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+MAIN PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Dashboard.js             - User home dashboard                          │
+│ OnboardingPage.js        - First-time user setup                        │
+│ ProfilePage.js           - User profile & settings                      │
+│ SettingsPage.js          - Application settings                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+LEARNING PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ RoadmapsPage.js          - Browse available roadmaps                    │
+│ RoadmapDetail.js         - Roadmap topics & progress                    │
+│ TopicPage.js             - Video lessons & documentation                │
+│ LanguagesPage.js         - Programming languages list                   │
+│ LanguageDetail.js        - Language-specific learning                   │
+│ StudyPlanPage.js         - Daily/weekly study schedule                  │
+│ AssessmentsPage.js       - Quiz & test management                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+AI PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ AITeacher.js             - AI concept explanations                      │
+│ AITutor.js               - Practice quiz generation                     │
+│ AIMentor.js              - Career guidance chat                         │
+│ AIInterviewer.js         - Mock interview simulator                     │
+│ ChatPage.js              - Unified AI chat interface                    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+CAREER PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CareerPage.js            - Career profile & analytics                   │
+│ CareerDashboard.js       - LeetCode/GitHub insights                     │
+│ JobBoardPage.js          - Browse job listings                          │
+│ JobDetailPage.js         - Job details & application                    │
+│ CertificatesPage.js      - Earned certificates                          │
+│ OutcomesPage.js          - Learning outcomes tracking                   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+SOCIAL & COMMUNITY PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CommunityPage.js         - Forums & discussions                         │
+│ StudyRoomsPage.js        - Collaborative study rooms                    │
+│ StudyRoomDetail.js       - Study room interface                         │
+│ HackathonsPage.js        - Hackathon events                             │
+│ LeaderboardPage.js       - User rankings                                │
+└─────────────────────────────────────────────────────────────────────────┘
+
+RECRUITER PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ RecruiterDashboard.js    - Recruiter home                               │
+│ RecruiterJobDetail.js    - Manage job posting                           │
+│ MentorInbox.js           - Mentor communication                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+COMPANY PAGES:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CompanyDashboard.js      - Company admin panel                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+ADMIN PAGES (16 pages):
+┌─────────────────────────────────────────────────────────────────────────┐
+│ AdminDashboard.js        - Platform statistics                          │
+│ AdminUsers.js            - User management                              │
+│ AdminRoles.js            - Career role CRUD                             │
+│ AdminRoadmaps.js         - Roadmap management                           │
+│ AdminTopics.js           - Topic CRUD                                   │
+│ AdminLanguages.js        - Programming language management              │
+│ AdminJobs.js             - Job posting moderation                       │
+│ AdminAnalytics.js        - Platform analytics                           │
+│ ... (+ 8 more admin pages)                                              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                     5. KEY WORKFLOWS & USER JOURNEYS
+═══════════════════════════════════════════════════════════════════════════════
+
+WORKFLOW 1: USER REGISTRATION & ONBOARDING
+───────────────────────────────────────────
+
+START → Registration Page
+  ↓
+Choose Auth Method:
+  ├─→ Email/Password → Enter credentials → Verify email
+  └─→ OAuth (Google/GitHub) → Authorize → Auto-verify
+  ↓
+Create Account (POST /api/v1/auth/register)
+  ↓
+JWT Token Generated → Store in localStorage
+  ↓
+Redirect to Onboarding Page
+  ↓
+Onboarding Form:
+  ├─→ Select Career Role (with AI suggestions)
+  ├─→ Choose Skill Level (Beginner/Intermediate/Advanced)
+  ├─→ Set Daily Study Time
+  └─→ Select Preferred Language
+  ↓
+Save Preferences (POST /api/v1/users/onboarding)
+  ↓
+Generate Initial Study Plan
+  ↓
+Redirect to Dashboard
+  ↓
+END
+
+WORKFLOW 2: LEARNING A TOPIC
+─────────────────────────────
+
+Dashboard → View Enrolled Roadmaps
+  ↓
+Select Roadmap → View Topics List
+  ↓
+Click Topic → Topic Page Loads
+  ↓
+Topic Page Components:
+  ├─→ Video Player (YouTube videos in EN/TA/HI)
+  ├─→ Markdown Documentation
+  ├─→ Code Examples
+  └─→ AI Teacher Button
+  ↓
+User Actions:
+  ├─→ Watch Video → Track Time (TimeTrackingSession)
+  ├─→ Read Documentation
+  ├─→ Ask AI Teacher (POST /api/v1/ai/teacher)
+  └─→ Generate Practice Quiz (POST /api/v1/ai/tutor/generate)
+  ↓
+Take AI-Generated Test
+  ↓
+Submit Answers (POST /api/v1/tests/submit)
+  ↓
+Check Score → Compare with Passing %
+  ↓
+IF Passed:
+  ├─→ Mark Topic Complete (POST /api/v1/topics/:id/complete)
+  ├─→ Award XP Points (badge system)
+  ├─→ Update Roadmap Progress
+  └─→ Update Heatmap Calendar
+ELSE:
+  └─→ Review Incorrect Answers → Retry Test
+  ↓
+END
+
+WORKFLOW 3: CAREER PROFILE ANALYSIS
+────────────────────────────────────
+
+Career Page → Add LeetCode/GitHub Username
+  ↓
+Verify Username (POST /api/v1/users/verify-leetcode or verify-github)
+  ↓
+IF Valid → Trigger Analysis
+  ↓
+LEETCODE ANALYSIS (POST /api/v1/career/leetcode/analyze):
+  ├─→ Fetch user stats from LeetCode GraphQL API
+  ├─→ Calculate: Total Solved, Easy/Medium/Hard
+  ├─→ Get Ranking, Acceptance Rate
+  ├─→ Analyze Submission Calendar
+  ├─→ AI Skill Assessment (via Gemini)
+  └─→ Store in CareerAnalysis model
+  ↓
+GITHUB ANALYSIS (POST /api/v1/career/github/analyze):
+  ├─→ Fetch repos via GitHub API
+  ├─→ Get: Stars, Forks, Commits, Languages
+  ├─→ Analyze contribution graph
+  ├─→ Top repositories detection
+  ├─→ AI Code Quality Assessment
+  └─→ Store in CareerAnalysis model
+  ↓
+Display Insights:
+  ├─→ Skill Level Score
+  ├─→ Strengths & Weaknesses
+  ├─→ Personalized Recommendations
+  └─→ Activity Heatmaps
+  ↓
+Award XP & Badges:
+  ├─→ "First Analysis" badge
+  ├─→ "5+ GitHub Repos" badge
+  └─→ "100+ LeetCode Problems" badge
+  ↓
+END
+
+WORKFLOW 4: AI TUTORING SESSION
+────────────────────────────────
+
+User → Navigate to AI Chat Page
+  ↓
+Select AI Mode:
+  ├─→ AI Teacher (Explanations)
+  ├─→ AI Tutor (Practice)
+  ├─→ AI Mentor (Career)
+  └─→ AI Interviewer (Mock Interview)
+  ↓
+[TEACHER MODE]
+  ├─→ Ask Question (POST /api/v1/ai/teacher)
+  ├─→ Backend selects AI provider (Gemini → Groq → Perplexity)
+  ├─→ Send prompt with context
+  ├─→ Receive structured response
+  ├─→ Store in AIChatSession
+  └─→ Display formatted answer
+  ↓
+[INTERVIEWER MODE]
+  ├─→ Start Interview (POST /api/v1/ai/interviewer/start)
+  ├─→ AI generates technical questions
+  ├─→ User submits answers (POST /api/v1/ai/interviewer/answer)
+  ├─→ AI evaluates answer quality
+  ├─→ Provides feedback and suggestions
+  └─→ Generate final interview report
+  ↓
+END
+
+WORKFLOW 5: DAILY STUDY PLAN GENERATION
+────────────────────────────────────────
+
+CRON Job (12:00 AM daily) → schedulerService.js
+  ↓
+For Each Active User:
+  ↓
+Gather User Data:
+  ├─→ Enrolled Roadmaps
+  ├─→ Completed Topics
+  ├─→ Skill Level
+  ├─→ Daily Study Time Preference
+  └─→ Recent Activity
+  ↓
+AI-Powered Plan Generation:
+  ├─→ Calculate topics to cover
+  ├─→ Estimate time per topic
+  ├─→ Balance difficulty
+  ├─→ Consider dependencies
+  └─→ Add variety (videos, docs, quizzes)
+  ↓
+Create DailyStudyPlan Document
+  ↓
+Send Email Reminder (emailService.js):
+  ├─→ Subject: "Your Study Plan for Today"
+  ├─→ List topics to study
+  ├─→ Estimated time
+  └─→ Motivational message
+  ↓
+User Accesses Dashboard → View Today's Plan
+  ↓
+Complete Plan Items → Mark as done
+  ↓
+Update Progress → Award XP
+  ↓
+END
+
+WORKFLOW 6: JOB APPLICATION PROCESS
+────────────────────────────────────
+
+User → Browse Job Board (GET /api/v1/jobs)
+  ↓
+Filter Jobs:
+  ├─→ By Role
+  ├─→ By Location
+  ├─→ By Experience Level
+  └─→ By Company
+  ↓
+Select Job → View Details
+  ↓
+Job Detail Page Shows:
+  ├─→ Description
+  ├─→ Requirements
+  ├─→ Salary Range
+  ├─→ Company Info
+  └─→ Application Deadline
+  ↓
+Click "Apply" → Check Profile Completeness
+  ↓
+IF Resume Uploaded:
+  ├─→ Submit Application (POST /api/v1/jobs/:id/apply)
+  ├─→ Create JobApplication document
+  ├─→ Notify Recruiter (email)
+  └─→ Add to "My Applications"
+ELSE:
+  └─→ Prompt to upload resume
+  ↓
+Track Application Status:
+  ├─→ New
+  ├─→ Under Review
+  ├─→ Interview Scheduled
+  ├─→ Rejected
+  └─→ Accepted
+  ↓
+END
+
+WORKFLOW 7: ADMIN CONTENT MANAGEMENT
+─────────────────────────────────────
+
+Admin Login → Admin Dashboard
+  ↓
+Platform Statistics:
+  ├─→ Total Users
+  ├─→ Active Roadmaps
+  ├─→ Topics Completed Today
+  └─→ System Health
+  ↓
+Content Management:
+  ↓
+[CREATE ROADMAP]
+  ├─→ Navigate to Admin Roadmaps
+  ├─→ Click "Add Roadmap"
+  ├─→ Enter: Title, Description, Difficulty, Role
+  ├─→ Set Passing Percentage
+  ├─→ Save (POST /api/v1/admin/roadmaps)
+  ↓
+[ADD TOPICS TO ROADMAP]
+  ├─→ Select Roadmap
+  ├─→ Click "Add Topic"
+  ├─→ Enter: Title, Description, Order
+  ├─→ Add Video Links (EN/TA/HI)
+  ├─→ Add Markdown Documentation
+  ├─→ Set Dependencies (prerequisite topics)
+  ├─→ Save (POST /api/v1/admin/topics)
+  ↓
+[MANAGE USERS]
+  ├─→ View All Users (GET /api/v1/admin/users)
+  ├─→ Edit User Role/Status
+  ├─→ Delete User (if needed)
+  └─→ View User Analytics
+  ↓
+END
+
+WORKFLOW 8: SOCIAL FEATURES - STUDY ROOMS
+──────────────────────────────────────────
+
+User → Study Rooms Page
+  ↓
+View Available Rooms (GET /api/v1/social/study-rooms)
+  ↓
+Actions:
+  ├─→ Join Existing Room
+  └─→ Create New Room (POST /api/v1/social/study-rooms)
+  ↓
+Study Room Features:
+  ├─→ Real-time Chat (Socket.io)
+  ├─→ Screen Sharing
+  ├─→ Collaborative Whiteboard
+  ├─→ Code Editor
+  └─→ Shared Timer (Pomodoro)
+  ↓
+Invite Friends → Share Room Link
+  ↓
+Track Session Time → Award XP for active participation
+  ↓
+END
+
+═══════════════════════════════════════════════════════════════════════════════
+                         6. BACKEND SERVICES
+═══════════════════════════════════════════════════════════════════════════════
+
+aiService.js - AI Integration
+───────────────────────────────
+├─→ Multi-provider support (Gemini, Groq, Perplexity)
+├─→ Automatic failover between providers
+├─→ Rate limiting per provider
+├─→ Prompt engineering & context management
+├─→ Response formatting
+└─→ Token usage tracking
+
+emailService.js - Email Management
+───────────────────────────────────
+├─→ Nodemailer SMTP configuration
+├─→ HTML email templates
+├─→ Email types: Welcome, Password Reset, Daily Reminders, Weekly Reports
+├─→ Queue management
+└─→ Retry logic for failed sends
+
+schedulerService.js - CRON Tasks
+─────────────────────────────────
+├─→ Daily study plan generation (12:00 AM)
+├─→ Email reminders (8:00 AM)
+├─→ Weekly progress reports (Sunday 9:00 AM)
+├─→ Database cleanup tasks
+└─→ Analytics aggregation
+
+badgeService.js - Gamification
+───────────────────────────────
+├─→ Badge definitions and criteria
+├─→ XP calculation logic
+├─→ Achievement unlocking
+└─→ Progress tracking
+
+xpService.js - XP System
+────────────────────────
+├─→ XP events: Topic completion, test passing, daily login, etc.
+├─→ Level calculation
+├─→ XP multipliers
+└─→ Leaderboard updates
+
+youtubeService.js - Video Management
+─────────────────────────────────────
+├─→ YouTube video validation
+├─→ Metadata extraction
+├─→ Thumbnail generation
+└─→ Playlist management
+
+skillMatcher.js - Career Matching
+──────────────────────────────────
+├─→ Job-skill matching algorithm
+├─→ Career path suggestions
+├─→ Skill gap analysis
+└─→ Learning recommendations
+
+═══════════════════════════════════════════════════════════════════════════════
+                        7. FRONTEND STATE MANAGEMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+ZUSTAND STORES:
+
+authStore.js - Authentication State
+────────────────────────────────────
+├─→ user: Current user object
+├─→ token: JWT token
+├─→ isAuthenticated: Boolean flag
+├─→ login() - Login action
+├─→ logout() - Logout action
+├─→ updateProfile() - Update user profile
+└─→ checkAuth() - Verify token validity
+
+appStore.js - Application State
+────────────────────────────────
+├─→ theme: Light/Dark mode
+├─→ language: UI language (EN/TA/HI)
+├─→ notifications: Notification queue
+├─→ loading: Global loading state
+└─→ error: Global error state
+
+═══════════════════════════════════════════════════════════════════════════════
+                          8. KEY FEATURES EXPLAINED
+═══════════════════════════════════════════════════════════════════════════════
+
+ADAPTIVE DIFFICULTY SYSTEM:
+───────────────────────────
+User's skill level (Beginner/Intermediate/Advanced) affects:
+├─→ Topic recommendations
+├─→ Test question difficulty
+├─→ Study plan pacing
+├─→ AI explanation complexity
+└─→ Progress expectations
+
+VIDEO-BASED TESTING:
+────────────────────
+1. User watches topic video
+2. AI extracts key concepts from video content
+3. Generates 10-15 multiple choice questions
+4. User takes test
+5. Minimum passing % defined per roadmap (default: 70%)
+6. If failed, must rewatch and retry
+
+GITHUB-STYLE ACTIVITY HEATMAP:
+──────────────────────────────
+Tracks daily activity:
+├─→ Topics completed
+├─→ Tests taken
+├─→ Study time logged
+├─→ AI chat sessions
+└─→ Community contributions
+
+Displays as calendar heatmap with color intensity
+
+MULTI-LANGUAGE SUPPORT:
+───────────────────────
+Videos available in:
+├─→ English (EN)
+├─→ Tamil (TA)
+└─→ Hindi (HI)
+
+User selects preferred language in settings
+
+RESUME ATS SCORING:
+───────────────────
+1. User uploads PDF resume
+2. OCR extraction using Tesseract.js
+3. AI analysis for:
+   ├─→ Keyword matching
+   ├─→ Format compliance
+   ├─→ Content quality
+   └─→ Suggestions
+4. Score out of 100
+5. Detailed recommendations
+
+XP & LEVELING SYSTEM:
+─────────────────────
+XP Rewards:
+├─→ Topic Completion: 50 XP
+├─→ Test Passed: 100 XP
+├─→ Daily Login: 10 XP
+├─→ GitHub Repo Added: 50 XP
+├─→ LeetCode Problem: varies by difficulty
+└─→ Community Post: 25 XP
+
+Levels:
+├─→ 0-500 XP: Beginner
+├─→ 501-1500 XP: Learner
+├─→ 1501-3000 XP: Practitioner
+└─→ 3001+ XP: Expert
+
+REAL-TIME FEATURES (Socket.io):
+────────────────────────────────
+├─→ Study room chat
+├─→ Collaborative whiteboard
+├─→ Live coding sessions
+├─→ Notifications
+└─→ Online user presence
+
+═══════════════════════════════════════════════════════════════════════════════
+                            9. SECURITY MEASURES
+═══════════════════════════════════════════════════════════════════════════════
+
+AUTHENTICATION:
+───────────────
+├─→ JWT tokens with 7-day expiration
+├─→ Bcrypt password hashing (10 rounds)
+├─→ OAuth 2.0 for Google/GitHub
+├─→ Email verification required
+└─→ Password reset via email token
+
+AUTHORIZATION:
+──────────────
+├─→ Role-based access (User, Recruiter, Company, Admin)
+├─→ Protected routes middleware
+├─→ Resource ownership verification
+└─→ Admin-only endpoints guarded
+
+API PROTECTION:
+───────────────
+├─→ Rate limiting (100 req/15min general, 20 req/min for AI)
+├─→ CORS configured for frontend origin
+├─→ Helmet security headers
+├─→ XSS protection
+├─→ Input validation with express-validator
+└─→ SQL injection prevention (Mongoose ORM)
+
+DATA PROTECTION:
+────────────────
+├─→ Sensitive data encryption
+├─→ Environment variables for secrets
+├─→ HTTPS in production
+└─→ Regular security audits
+
+═══════════════════════════════════════════════════════════════════════════════
+                       10. DEPLOYMENT ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+PRODUCTION SETUP:
+
+Frontend (React)
+├─→ Build: npm run build
+├─→ Serve: Nginx
+├─→ CDN: Cloudflare
+└─→ Static hosting: Vercel/Netlify
+
+Backend (Node.js)
+├─→ Process Manager: PM2
+├─→ Reverse Proxy: Nginx
+├─→ SSL: Let's Encrypt
+├─→ Server: AWS EC2/DigitalOcean
+└─→ Monitoring: DataDog/Sentry
+
+Database (MongoDB)
+├─→ Hosting: MongoDB Atlas
+├─→ Backup: Daily snapshots
+├─→ Replica Set: 3 nodes
+└─→ Indexing: Optimized queries
+
+Email Service
+├─→ Provider: SendGrid/AWS SES
+└─→ Template management
+
+AI Services
+├─→ Gemini: Primary
+├─→ Groq: Fallback
+└─→ Perplexity: Tertiary
+
+═══════════════════════════════════════════════════════════════════════════════
+                        11. IMPORTANT CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+PORT CONFIGURATION:
+──────────────────
+├─→ Backend: 5000 (configurable via PORT env)
+├─→ Frontend: 3000 (React default)
+└─→ MongoDB: 27017 (local) or Atlas connection string
+
+ENROLLMENT LIMITS:
+──────────────────
+├─→ Maximum active roadmaps per user: 3
+└─→ Reason: Focus and prevent overwhelming users
+
+PASSING CRITERIA:
+─────────────────
+├─→ Default passing percentage: 70%
+├─→ Configurable per roadmap
+└─→ Must pass to mark topic complete
+
+CRON SCHEDULES:
+───────────────
+├─→ Daily plan generation: 0 0 * * * (midnight)
+├─→ Email reminders: 0 8 * * * (8 AM)
+└─→ Weekly reports: 0 9 * * 0 (Sunday 9 AM)
+
+═══════════════════════════════════════════════════════════════════════════════
+                     12. DEVELOPMENT WORKFLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+LOCAL DEVELOPMENT:
+
+1. Clone repository
+2. Install dependencies (npm install in backend & frontend)
+3. Configure environment variables (.env files)
+4. Start MongoDB (mongod)
+5. Seed database (node backend/seed/seedData.js)
+6. Start backend (cd backend && npm run dev)
+7. Start frontend (cd frontend && npm start)
+8. Access at http://localhost:3000
+
+DEFAULT CREDENTIALS:
+────────────────────
+Admin: admin@skillforge.com / admin123
+
+═══════════════════════════════════════════════════════════════════════════════
+                              END OF DOCUMENTATION
+═══════════════════════════════════════════════════════════════════════════════
+
+This document provides complete structure and workflows for creating flowcharts.
+Recommended flowchart sections:
+1. System Architecture Diagram
+2. User Authentication Flow
+3. Learning Journey Flow
+4. Career Analysis Flow
+5. AI Interaction Flow
+6. Database Schema Relationships
+7. API Route Hierarchy
+8. Admin Workflow
+9. Social Features Flow
+10. Deployment Architecture
+
+Use eraser.io to create visual representations of these workflows.
